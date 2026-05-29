@@ -96,14 +96,18 @@
       "docker_recommendation_visit": "Visit",
       "docker_servers_link": "Docker MCP Hub",
       "docker_recommendation_suffix": "Note: Docker Desktop must be installed on your system.",
-      "guide_button": "Quick Guide",
+      "guide_button": "[Important Usage Guide]",
+      "guide_tooltip": "Getting Started Guide for MCP Manager",
       "guide_title": "Getting Started with MCP Manager",
       "guide_step1_title": "Step 1 — Add MCP Server",
       "guide_step1_desc": "Click the \"Add MCP Server\" button in the MCP Servers table. Fill in the server name and command. Make sure all required fields are correct before clicking \"Add.\"",
       "guide_step2_title": "Step 2 — Add MCP Agent",
       "guide_step2_desc": "Click the \"Add Agent\" button in the MCP Agents table. Give the agent a name and description, then select one or more MCP Servers from the list. At least one server must be selected to start the agent.",
       "guide_step3_title": "Step 3 — Start MCP Agent",
-      "guide_step3_desc": "Find your agent in the MCP Agents table and click the \"Start\" button. The agent will connect to its configured MCP servers and become ready for use in the chat."
+      "guide_step3_desc": "Find your agent in the MCP Agents table and click the \"Start\" button. The agent will connect to its configured MCP servers and become ready for use in the chat.",
+      "guide_note_prefix": "Before adding an MCP server, ensure uvx and npx are installed and available on your system environment PATH. These tools are required for most MCP servers to function correctly.",      
+      "guide_note_prefix2": "Important: For most MCP servers to work, please ensure that uvx and npx are installed and available in your system PATH.",
+      "guide_note_link": "[More Info]"
     },
     "tools_dialog": {
       "title": "MCP Server Tools",
@@ -213,7 +217,7 @@
   },
   "topbar": {
     "title": "About ",
-    "content_part_1": "This application is based on the Intel® AI Super Builder framework. The application has been optimized to use the AI PC capabilities of the hardware in this computer. Visit",
+    "content_part_1": "This application has been optimized to use the AI PC capabilities of the hardware in this computer. Visit",
     "content_part_2": "Intel.com/AIPC",
     "content_part_3": "for the latest AI PC information and product availability.",
     "content_part_4": "AI Super Builder Application Package:",
@@ -222,8 +226,12 @@
     "content_part_6": "Chat Model:",
     "content_part_7": "Embedding Model:",
     "content_part_8": "Reranker Model:",
-    "content_part_9": "Opensource component and license information",
+    "content_part_9": "OpenSource Component and License Information",
     "content_part_10": "OK",
+    "content_part_gpu_driver": "Install latest GPU driver",
+    "content_part_npu_driver": "Install latest NPU driver",
+    "report_bug": "Report a Bug",
+    "user_guide": "User Guide",
     "view_model_link": "View Model Card"
   },
   "sidebar": {
@@ -403,7 +411,8 @@
       "part_1": "Your hardware is not compatible with this model which highly optimized for NPU.",
       "part_2": "Please check the minimum hardware requirements:",
       "part_3": "CPU: Intel® Core™ Ultra processor Series 2 (former Lunar Lake)",
-      "part_4": "NPU Driver: "
+      "part_4": "NPU Driver: We recommend installing the latest NPU driver version from: ",
+      "part_4_url": "https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html"
     },
     "notice": {
       "steps": {

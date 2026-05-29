@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 fn main() {
     tauri_build::build();
-    tonic_build
+    tonic_prost_build
         ::configure()
         .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
         .compile_protos(&["../../shared/superbuilder_middleware.proto"], &["../../shared"])

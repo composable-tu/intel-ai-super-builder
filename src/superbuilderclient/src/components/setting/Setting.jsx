@@ -850,7 +850,18 @@ const Setting = ({ isOpen, setIsOpen, onClose }) => {
               <ul>
                 <li>{t('setting.alert.part_3')}</li>
                 <li>
-                  {t('setting.alert.part_4')} {sysInfo.NpuInfo.minVersion}
+                  {t('setting.alert.part_4')}
+                  <a href={(() => {
+                    try {
+                      const urlString = t('setting.alert.part_4_url');
+                      const url = new URL(urlString);
+                      return (url.protocol === 'https:' || url.protocol === 'http:') ? url.href : '#';
+                    } catch {
+                      return '#';
+                    }
+                  })()} target="_blank" rel="noopener noreferrer">
+                    {t('setting.alert.part_4_url')}
+                  </a>
                 </li>
               </ul>
             </div>

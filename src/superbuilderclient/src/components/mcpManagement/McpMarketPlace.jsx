@@ -118,7 +118,7 @@ const McpMarketPlace = ({ isOpen = false, onClose = () => {} }) => {
       }
     } catch (error) {
       console.error('Failed to add MCP Server:', error);
-      useAppStore.getState().showNotification(`Failed to add "${item.name}": ${error}`, 'error');
+      useAppStore.getState().showNotification(`Failed to add "${item.name}": ${error.message || error}`, 'error');
     } finally {
       setProcessingItems(prev => {
         const newSet = new Set(prev);
@@ -202,7 +202,7 @@ const McpMarketPlace = ({ isOpen = false, onClose = () => {} }) => {
 
       // Set selected servers for removal
       useMcpStore.getState().setSelectedMcpServer(serversToRemove);
-      useMcpStore.getState().setSelectedMcpServerId(serversToRemove.map(s => s.id));
+      useMcpStore.getState().setSelectedMcpServerNames(serversToRemove.map(s => s.id));
 
       const response = await useMcpStore.getState().removeMcpServer();
 
@@ -210,9 +210,7 @@ const McpMarketPlace = ({ isOpen = false, onClose = () => {} }) => {
         useAppStore
           .getState()
           .showNotification(
-            `Successfully removed "${item.name}" (${
-              serversToRemove.length
-            } server${serversToRemove.length > 1 ? 's' : ''})`,
+            `Successfully removed "${item.name}"`,
             'success'
           );
         // Refresh the local server list which will also update marketplace removed status

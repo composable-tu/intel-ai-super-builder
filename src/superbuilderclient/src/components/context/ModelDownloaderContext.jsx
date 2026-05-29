@@ -7,9 +7,11 @@ const ModelDownloaderContext = createContext({
   isInitDownload: false,
   downloadInProgress: false,
   downloadData: [],
+  pendingModelSelection: null,
   setIsInitDownload: () => {},
   setDownloadInProgress: () => {},
   setDownloadData: () => {},
+  setPendingModelSelection: () => {},
   setDownloadEndpoint: () => {},
 });
 
@@ -22,6 +24,7 @@ const ModelDownloaderProvider = ({ children }) => {
   const [downloadConsent, setDownloadConsent] = useState(false);
   const [downloadWindowsOpen, setDownloadWindowsOpen] = useState(false);
   const [waitingForConsent, setWaitingForConsent] = useState(false);
+  const [pendingModelSelection, setPendingModelSelection] = useState(null);
   const [modelCards, setModelCards] = useState([]);
 
   const setDownloadEndpoint = (endpoint) => {
@@ -30,6 +33,18 @@ const ModelDownloaderProvider = ({ children }) => {
       download_endpoint: endpoint,
     };
     setConfig(updatedConfig);
+  };
+
+  // Reset transient download state.
+  // clearFailure: also set downloadFailed → false
+  // clearConsent: also set downloadConsent → false
+  // clearData:    also clear downloadData and downloadConsent
+  const resetDownloadState = ({ clearData = false, clearFailure = false, clearConsent = false } = {}) => {
+    setDownloadInProgress(false);
+    setWaitingForConsent(false);
+    if (clearFailure) setDownloadFailed(false);
+    if (clearConsent || clearData) setDownloadConsent(false);
+    if (clearData) setDownloadData([]);
   };
 
   // return sanitized URL, otherwise return null
@@ -172,6 +187,8 @@ const ModelDownloaderProvider = ({ children }) => {
         setDownloadInProgress,
         downloadData,
         setDownloadData,
+        pendingModelSelection,
+        setPendingModelSelection,
         downloadFailed,
         setDownloadFailed,
         downloadConsent,
@@ -185,6 +202,7 @@ const ModelDownloaderProvider = ({ children }) => {
         getDownloadLink,
         setDownloadEndpoint,
         removeModelsFromUrl,
+        resetDownloadState,
       }}
     >
       {children}

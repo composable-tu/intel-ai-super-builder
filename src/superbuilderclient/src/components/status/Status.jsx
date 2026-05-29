@@ -18,12 +18,17 @@ const Status = ({ setIsMinHWModalOpen, setIsNonValidHWModalOpen }) => {
     setDownloadData,
     downloadConsent,
     downloadFailed,
+    setDownloadFailed,
+    waitingForConsent,
     setWaitingForConsent,
     setDownloadWindowsOpen,
+    downloadWindowsOpen,
   } = useContext(ModelDownloaderContext);
   const { config, assistant, getDBConfig } = useDataStore();
   const downloadInProgressRef = useRef(downloadInProgress);
   const downloadFailedRef = useRef(downloadFailed);
+  const downloadConsentRef = useRef(downloadConsent);
+  const waitingForConsentRef = useRef(waitingForConsent);
   const isFirstRun = useRef(true);
   const { newChatModelNeeded, setNewChatModelNeeded } = useContext(ChatContext);
   const [currentModel, setCurrentModel] = useState(null);
@@ -31,18 +36,34 @@ const Status = ({ setIsMinHWModalOpen, setIsNonValidHWModalOpen }) => {
   useEffect(() => {
     console.log("download in progress flag " + downloadInProgress);
     downloadInProgressRef.current = downloadInProgress;
-    if (downloadInProgress.current) {
+    if (downloadInProgress) {
       setStatus(t("status.downloading_models"));
     }
   }, [downloadInProgress]);
 
   useEffect(() => {
+    downloadFailedRef.current = downloadFailed;
     if (downloadFailed) {
-      downloadFailedRef.current = downloadFailed;
       setDownloadInProgress(false);
       setStatus(t("status.downloading_retry"));
     }
   }, [downloadFailed]);
+
+  useEffect(() => {
+    downloadConsentRef.current = downloadConsent;
+  }, [downloadConsent]);
+
+  useEffect(() => {
+    waitingForConsentRef.current = waitingForConsent;
+  }, [waitingForConsent]);
+
+  // When the popup closes while still in consent-waiting state, the user cancelled.
+  // Update the status bar so it doesn't stay stuck on "Awaiting consent".
+  useEffect(() => {
+    if (!downloadWindowsOpen && waitingForConsentRef.current && !downloadInProgress && !downloadFailed) {
+      setStatus(t("status.downloading_retry"));
+    }
+  }, [downloadWindowsOpen]);
 
   const [status, setStatus] = useState(null);
   const { setReady } = useContext(RagReadyContext);
@@ -131,7 +152,8 @@ const Status = ({ setIsMinHWModalOpen, setIsNonValidHWModalOpen }) => {
         throw new Error("downloading");
       }
       if (downloadFailedRef.current) {
-        throw new Error("download failed");
+        setStatus(t("status.downloading_retry"));
+        return false;
       }
       console.log("PASSED DOWNLOADINPROGRESS", downloadInProgress);
 
@@ -151,10 +173,13 @@ const Status = ({ setIsMinHWModalOpen, setIsNonValidHWModalOpen }) => {
           missingModelsResponse.missing_models &&
           missingModelsResponse.missing_models.length > 0
         ) {
-          if (downloadConsent === false) {
-            setStatus(t("status.awaiting_download_models"));
-            setWaitingForConsent(true);
-            setDownloadWindowsOpen(true);
+          if (downloadConsentRef.current === false) {
+            if (!waitingForConsentRef.current) {
+              setStatus(t("status.awaiting_download_models"));
+              setWaitingForConsent(true);
+              // popup is opened by modelDownloader's useEffect once
+              // downloadStatus and all conditions are confirmed consistent
+            }
             return false;
           } else {
             setWaitingForConsent(false);
@@ -170,7 +195,7 @@ const Status = ({ setIsMinHWModalOpen, setIsNonValidHWModalOpen }) => {
         await new Promise((resolve) =>
           setTimeout(() => resolve(), RETRY_INTERVAL)
         );
-        return model(retries);
+        return model(retries - 1);
       } else {
         if (retries > 1) {
           console.log(

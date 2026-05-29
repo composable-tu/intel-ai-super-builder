@@ -12,13 +12,15 @@ import {
   Alert,
 } from '@mui/material';
 import ArrowCircleLeft from '@mui/icons-material/ArrowCircleLeft';
-import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
-import IconButton from '@mui/material/IconButton';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import StepContent from '@mui/material/StepContent';
+import Link from '@mui/material/Link';
+import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import Autocomplete from '@mui/material/Autocomplete';
 import './McpManagement.css';
 import McpAgentTable from './McpAgentTable';
@@ -59,7 +61,7 @@ const isValidEnvFormat = value => {
   return keyValuePattern.test(trimmed);
 };
 
-const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
+const McpManagement = ({ isSidebarOpen = false, closePanels = () => { } }) => {
   const { t } = useTranslation();
   const { isChatReady, setIsChatReady } = useContext(ChatContext);
   const assistant = useDataStore(state => state.assistant);
@@ -451,8 +453,8 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
         mcpServerNameDuplicate:
           mcpInputType === 'Update'
             ? mcpServers.some(
-                server => server.name === value.trim() && server.name !== mcpInput.editingServerName
-              )
+              server => server.name === value.trim() && server.name !== mcpInput.editingServerName
+            )
             : mcpServers.some(server => server.name === value.trim()),
         mcpServerName: !value.trim(),
         mcpServerNameInvalid: value.trim() && !namePattern.test(value.trim()),
@@ -587,9 +589,9 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
         agentNameDuplicate:
           mcpAgentInputType === 'Update'
             ? mcpAgents.some(
-                agent =>
-                  agent.name === value.trim() && agent.name !== mcpAgentInput.editingAgentName
-              )
+              agent =>
+                agent.name === value.trim() && agent.name !== mcpAgentInput.editingAgentName
+            )
             : mcpAgents.some(agent => agent.name === value.trim()),
         agentName: !value.trim(),
         agentNameInvalid: value.trim() && !namePattern.test(value.trim()),
@@ -714,6 +716,36 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
             overflow: 'auto',
           }}
         >
+          <Alert
+            severity="info"
+            sx={{
+              mb: 1,
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <Typography variant="body2" color="text.primary" component="span">
+              {t(
+                'mcp.ui.guide_note_prefix2',
+                'Important: Most MCP servers require uvx and npx to be installed and available in your system PATH.'
+              )}{' '}
+            </Typography>
+            <Link
+              component="button"
+              onClick={() => openUrl('https://github.com/intel/intel-ai-super-builder/blob/main/mcp/OPEN_SOURCE_MCP_SERVERS.md')}
+              underline="hover"
+              sx={{
+                fontWeight: 500,
+                position: 'relative',
+                zIndex: 2,
+                pointerEvents: 'auto',
+                cursor: 'pointer',
+                verticalAlign: 'baseline',
+              }}
+            >
+              {t('mcp.ui.guide_note_link', '[Learn more]')}
+            </Link>
+          </Alert>
           <McpTableHeader
             title={'MCP Servers'}
             onAdd={() => handleInputModalOpen('Add')}
@@ -739,7 +771,7 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
             handleOpenMarketplace={handleOpenMarketplace}
           />
 
-          <Box sx={createTableContainerStyle(34)}>
+          <Box sx={createTableContainerStyle(84)}>
             <McpServerTable />
           </Box>
         </Box>
@@ -784,24 +816,38 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
               pointerEvents: 'none',
             }}
           >
-            <Typography
-              variant="h5"
-              component="h1"
-              color="text.primary"
-              sx={{ fontWeight: 'bold' }}
-            >
-              {t('sidebar.mcp_manager', 'MCP Manager')}
-            </Typography>
-            <Tooltip title={t('mcp.ui.guide_button', 'Quick Guide')}>
-              <IconButton
-                onClick={() => setIsGuideOpen(true)}
-                size="small"
-                data-testid="mcp-guide-btn"
-                sx={{ color: '#f5a046', pointerEvents: 'auto', ml: 0.5 }}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="h5"
+                component="h1"
+                color="text.primary"
+                sx={{ fontWeight: 'bold', lineHeight: 1 }}
               >
-                <TipsAndUpdatesOutlinedIcon sx={{ fontSize: '22px' }} />
-              </IconButton>
-            </Tooltip>
+                {t('sidebar.mcp_manager', 'MCP Manager')}
+              </Typography>
+              <Link
+                component="button"
+                onClick={() => setIsGuideOpen(true)}
+                underline="hover"
+                data-testid="mcp-guide-btn"
+                sx={{
+                  pointerEvents: 'auto',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'primary.main',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  background: 'none',
+                  border: 'none',
+                  position: 'relative',
+                  top: '2px',
+                }}
+              >
+                {t('mcp.ui.guide_button', '[ Important Usage Guide ]')}
+              </Link>
+            </Box>
           </Box>
         </Box>
 
@@ -1074,10 +1120,10 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
                   getOptionLabel={option => option.name}
                   value={
                     Array.isArray(mcpAgentInput.mcpServerNames) &&
-                    mcpAgentInput.mcpServerNames.length > 0
+                      mcpAgentInput.mcpServerNames.length > 0
                       ? mcpServers.filter(server =>
-                          mcpAgentInput.mcpServerNames.includes(server.name)
-                        )
+                        mcpAgentInput.mcpServerNames.includes(server.name)
+                      )
                       : []
                   }
                   disabled={
@@ -1424,6 +1470,50 @@ const McpManagement = ({ isSidebarOpen = false, closePanels = () => {} }) => {
                     'Click the "Add MCP Server" button in the MCP Servers table. Fill in the server name and command. Make sure all required fields are correct before clicking "Add."'
                   )}
                 </Typography>
+                <Box
+                  sx={{
+                    mt: 1.5,
+                    p: 1.25,
+                    borderRadius: '10px',
+                    borderLeft: '4px solid',
+                    borderColor: 'warning.main',
+                    backgroundColor: 'action.hover',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1,
+                  }}
+                >
+                  <InfoOutlinedIcon sx={{ fontSize: 18, mt: '2px', color: 'warning.main' }} />
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{ display: 'block', fontWeight: 700, color: 'warning.dark', mb: 0.25 }}
+                    >
+                      Essential Setup
+                    </Typography>
+                    <Typography variant="body2" color="text.primary" component="span">
+                      {t(
+                        'mcp.ui.guide_note_prefix',
+                        'For most MCP servers, uvx and npx must be installed and available in the system PATH environment variable.'
+                      )}{' '}
+                    </Typography>
+                    <Link
+                      component="button"
+                      onClick={() => openUrl('https://github.com/intel/intel-ai-super-builder/blob/main/mcp/OPEN_SOURCE_MCP_SERVERS.md')}
+                      underline="hover"
+                      sx={{
+                        fontWeight: 500,
+                        position: 'relative',
+                        zIndex: 2,
+                        pointerEvents: 'auto',
+                        cursor: 'pointer',
+                        verticalAlign: 'baseline',
+                      }}
+                    >
+                      {t('mcp.ui.guide_note_link', 'More Info')}
+                    </Link>
+                  </Box>
+                </Box>
               </StepContent>
             </Step>
             <Step active>
