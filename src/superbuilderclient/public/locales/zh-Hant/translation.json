@@ -92,14 +92,18 @@
       "docker_recommendation_visit": "訪問",
       "docker_servers_link": "Docker MCP Hub",
       "docker_recommendation_suffix": "注意：您的系統必須安裝 Docker Desktop。" ,
-      "guide_button": "快速指南",
+      "guide_button": "使用指南",
+      "guide_tooltip": "MCP 管理入門指南",
       "guide_title": "MCP Manager 使用入門",
       "guide_step1_title": "第一步 — 新增 MCP Server",
       "guide_step1_desc": "點擊 MCP Servers 表格中的「Add MCP Server」按鈕，填寫伺服器名稱及命令，確認參數正確後點擊「Add」完成新增。",
       "guide_step2_title": "第二步 — 新增 MCP Agent",
       "guide_step2_desc": "點擊 MCP Agents 表格中的「Add Agent」按鈕，填寫 Agent 名稱與描述，並從清單中選取一個或多個 MCP Server。至少需選擇一個 Server 才能啟動 Agent。",
       "guide_step3_title": "第三步 — 啟動 MCP Agent",
-      "guide_step3_desc": "在 MCP Agents 表格中找到剛新增的 Agent，點擊「Start」按鈕。Agent 將連線至所設定的 MCP Server，啟動後即可在對話中使用。"
+      "guide_step3_desc": "在 MCP Agents 表格中找到剛新增的 Agent，點擊「Start」按鈕。Agent 將連線至所設定的 MCP Server，啟動後即可在對話中使用。",
+      "guide_note_prefix": "在新增 MCP 伺服器前，請確保已於系統環境 PATH 中安裝並可使用 uvx 和 npx。這些工具為大多數 MCP 伺服器正常運作所必需。",
+      "guide_note_prefix2": "注意：大多數 MCP 伺服器需要已安裝 uvx 和 npx，且可於系統環境 PATH 中使用。",
+      "guide_note_link": "【更多資訊】",
       "cannot_remove_servers_tooltip": "移除 MCP 伺服器。請確保先移除使用該伺服器的所有 MCP 助理。",
       "cannot_remove_agents_tooltip": "移除 MCP 助理。在移除前請先停止 MCP 助理。"
     },
@@ -210,7 +214,7 @@
   },
   "topbar": {
     "title": "關於 ",
-    "content_part_1": "本應用基於英特爾® AI Super Builder 框架建構，已針對本機硬體 AI PC 能力最佳化。造訪",
+    "content_part_1": "本應用已針對本機硬體 AI PC 能力最佳化。造訪",
     "content_part_2": "Intel.com/AIPC",
     "content_part_3": "取得最新 AI PC 資訊及產品動態",
     "content_part_4": "Super Builder 應用套件：",
@@ -221,6 +225,10 @@
     "content_part_8": "重新排序模型：",
     "content_part_9": "開源元件及授權資訊",
     "content_part_10": "確定",
+    "content_part_gpu_driver": "安裝最新 GPU 驅動程式",
+    "content_part_npu_driver": "安裝最新 NPU 驅動程式",
+    "report_bug": "回報錯誤",
+    "user_guide": "使用指南",
     "view_model_link": "檢視模型卡片"
   },
   "sidebar": {

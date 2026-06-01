@@ -95,13 +95,19 @@
       "docker_servers_link": "Docker MCP Hub",
       "docker_recommendation_suffix": "注意：您的系统必须安装 Docker Desktop。",
       "guide_button": "快速指南",
+      "guide_tooltip": "MCP 管理入门指南",
       "guide_title": "MCP Manager 使用入门",
       "guide_step1_title": "第一步 — 添加 MCP Server",
-      "guide_step1_desc": "点击 MCP Servers 表格中的"Add MCP Server"按钮，填写服务器名称和命令，确认参数无误后点击"Add"完成添加。",
+      "guide_step1_desc": "点击 MCP Servers 表格中的“Add MCP Server”按钮，填写服务器名称和命令，确认参数无误后点击“Add”完成添加。",
       "guide_step2_title": "第二步 — 添加 MCP Agent",
-      "guide_step2_desc": "点击 MCP Agents 表格中的"Add Agent"按钮，填写 Agent 名称和描述，然后从列表中勾选一个或多个 MCP Server。至少需要选择一个 Server 才能启动 Agent。",
+      "guide_step2_desc": "点击 MCP Agents 表格中的“Add Agent”按钮，填写 Agent 名称和描述，然后从列表中勾选一个或多个 MCP Server。至少需要选择一个 Server 才能启动 Agent。",
       "guide_step3_title": "第三步 — 启动 MCP Agent",
-      "guide_step3_desc": "在 MCP Agents 表格中找到刚添加的 Agent，点击"Start"按钮。Agent 将连接到所配置的 MCP Server，启动后即可在对话中使用。"
+      "guide_step3_desc": "在 MCP Agents 表格中找到刚添加的 Agent，点击“Start”按钮。Agent 将连接到所配置的 MCP Server，启动后即可在对话中使用。",
+      "guide_note_prefix": "在添加 MCP 服务器前，请确保已在系统环境 PATH 中安装并可使用 uvx 和 npx。这些工具是大多数 MCP 服务器正常运行所必需的。",
+      "guide_note_prefix2": "注意：大多数 MCP 服务器需要已安装 uvx 和 npx，并且可在系统环境 PATH 中使用。",
+      "guide_note_link": "【更多信息】",
+      "cannot_remove_servers_tooltip": "移除 MCP 服务器。请确保先移除使用该服务器的所有 MCP 助理。",
+      "cannot_remove_agents_tooltip": "移除 MCP 助理。在移除前请先停止 MCP 助理。"
     },
     "tools_dialog": {
       "title": "MCP 服务器工具",
@@ -119,8 +125,6 @@
       "url": "URL",
       "environment": "环境变量",
       "parameters": "参数",
-      "cannot_remove_servers_tooltip": "移除 MCP 服务器。请确保先移除使用该服务器的所有 MCP 助理。",
-      "cannot_remove_agents_tooltip": "移除 MCP 助理。在移除前请先停止 MCP 助理。",
       "reject": "拒绝并停止助理",
       "server_indicator": "MCP 服务器 {{current}} / {{total}}"
     },
@@ -210,7 +214,7 @@
   },
   "topbar": {
     "title": "关于 ",
-    "content_part_1": "本应用基于英特尔® AI Super Builder 框架构建，已针对本机硬件 AI PC 能力优化。访问",
+    "content_part_1": "本应用已针对本机硬件 AI PC 能力优化。访问",
     "content_part_2": "Intel.com/AIPC",
     "content_part_3": "获取最新 AI PC 信息及产品动态",
     "content_part_4": "Super Builder应用包：",
@@ -221,6 +225,10 @@
     "content_part_8": "重排序模型：",
     "content_part_9": "开源组件及许可证信息",
     "content_part_10": "确定",
+    "content_part_gpu_driver": "安装最新 GPU 驱动程序",
+    "content_part_npu_driver": "安装最新 NPU 驱动程序",
+    "report_bug": "报告错误",
+    "user_guide": "用户指南",
     "view_model_link": "查看模型卡片"
   },
   "sidebar": {

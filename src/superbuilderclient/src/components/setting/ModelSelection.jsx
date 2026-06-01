@@ -39,7 +39,18 @@ const ModelSelection = () => {
 
   const { isChatReady, newChatModelNeeded } = useContext(ChatContext);
   const { ready } = useContext(RagReadyContext);
-  const { waitingForConsent } = useContext(ModelDownloaderContext);
+  const {
+    waitingForConsent,
+    downloadInProgress,
+    downloadFailed,
+    resetDownloadState,
+    setDownloadConsent,
+    setDownloadData,
+    setDownloadFailed,
+    setDownloadWindowsOpen,
+    setPendingModelSelection,
+    setWaitingForConsent,
+  } = useContext(ModelDownloaderContext);
 
   const [downloadedModels, setDownloadedModels] = useState({});
   const [showEmbeddingConfirm, setShowEmbeddingConfirm] = useState(false);
@@ -62,6 +73,32 @@ const ModelSelection = () => {
     setConfig(updatedConfig);
   };
 
+  const requestModelDownload = (type, modelName) => {
+    console.log('Request model download:', type, modelName);
+    setPendingModelSelection({ modelType: type, modelName });
+    setDownloadFailed(false);
+    setDownloadConsent(false);
+    setDownloadWindowsOpen(false);
+    setDownloadData({
+      missing_models: [modelName],
+      models_dir_path: config.local_model_hub,
+    });
+    setWaitingForConsent(true);
+  };
+
+  const handleModelSelection = (type, modelName) => {
+    if (assistant.models[type] === modelName) {
+      return;
+    }
+
+    if (downloadedModels[modelName] === true) {
+      modelSwitch(type, modelName);
+      return;
+    }
+
+    requestModelDownload(type, modelName);
+  };
+
   const endPointSwitch = async endpoint => {
     console.log('Endpoint Switch:', endpoint);
     const updatedConfig = {
@@ -75,8 +112,18 @@ const ModelSelection = () => {
       }
       return acc;
     }, {});
-    setViewModel(newViewModel);
+    // Endpoint changes are passive: save the endpoint and clear stale failure
+    // state, but do not trigger a retry/download popup. A manual model download
+    // starts only when the user selects an undownloaded model again.
+    setPendingModelSelection(null);
+    resetDownloadState({ clearFailure: true, clearConsent: true });
+    await setViewModel(newViewModel);
     await getDBConfig();
+    if (config.ActiveAssistant?.all_models) {
+      config.ActiveAssistant.all_models.forEach(model => {
+        isModelDownloaded(model.full_name);
+      });
+    }
   };
 
   const handleRemoveClick = modelName => {
@@ -97,7 +144,7 @@ const ModelSelection = () => {
     // closes Qdrant, deletes the vectordb directory and reinitialises.
     // The frontend only needs to trigger the model switch.
     if (pendingEmbeddingModel) {
-      modelSwitch('embedding_model', pendingEmbeddingModel);
+      handleModelSelection('embedding_model', pendingEmbeddingModel);
     }
     setPendingEmbeddingModel(null);
   };
@@ -105,6 +152,47 @@ const ModelSelection = () => {
   const handleEmbeddingCancel = () => {
     setShowEmbeddingConfirm(false);
     setPendingEmbeddingModel(null);
+  };
+
+  const canSwitchEndpoint = () => {
+    // Block endpoint changes during active download to prevent corruption
+    if (downloadInProgress) {
+      return false;
+    }
+
+    // Allow endpoint changes in these scenarios:
+    // 1. Before download starts (initial setup)
+    if (waitingForConsent) {
+      return true;
+    }
+
+    // 2. After any download failure (complete or partial)
+    if (downloadFailed) {
+      return true;
+    }
+
+    // 3. No chat model is available yet
+    if (newChatModelNeeded) {
+      return true;
+    }
+
+    // 4. No models have been checked yet (initial state)
+    if (Object.keys(downloadedModels).length === 0) {
+      return true;
+    }
+
+    // 5. All checked models failed to download
+    if (Object.values(downloadedModels).every(v => v === false)) {
+      return true;
+    }
+
+    // 6. System is fully operational
+    if (ready && isChatReady) {
+      return true;
+    }
+
+    // Default: disable during loading/transitional states
+    return false;
   };
 
   const isModelDownloaded = async modelName => {
@@ -143,7 +231,7 @@ const ModelSelection = () => {
             renderValue={value => value}
             onChange={event => {
               const modelName = event.target.value;
-              modelSwitch('chat_model', modelName);
+              handleModelSelection('chat_model', modelName);
             }}
             disabled={
               config.ActiveAssistant.all_models === undefined
@@ -343,7 +431,7 @@ const ModelSelection = () => {
             renderValue={value => value}
             onChange={event => {
               const modelName = event.target.value;
-              modelSwitch('ranker_model', modelName);
+              handleModelSelection('ranker_model', modelName);
             }}
             disabled={
               config.ActiveAssistant.all_models === undefined
@@ -399,15 +487,7 @@ const ModelSelection = () => {
             onChange={event => {
               endPointSwitch(event.target.value);
             }}
-            disabled={
-              newChatModelNeeded
-                ? false
-                : ready && isChatReady
-                  ? false
-                  : waitingForConsent
-                    ? false
-                    : true
-            }
+            disabled={!canSwitchEndpoint()}
             MenuProps={{
               PaperProps: {
                 style: {

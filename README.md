@@ -21,7 +21,8 @@ These assistants streamline everyday tasks and deliver intelligent solutions by 
 - [Coming Soon](#coming-soon)
 - [Help and Troubleshooting](#help-and-troubleshooting)
 - [What's New](#whats-new)
-  - [Latest Release (Version 2.8.0)](#latest-release-version-280)
+  - [Latest Release (Version 2.9.0)](#latest-release-version-290)
+  - [Version 2.8.0](#version-280)
 - [Get Support](#get-support)
 
 ## Why Choose Intel® AI Super Builder?
@@ -157,7 +158,17 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 <br>
 
 ## What's New
-### Latest Release (Version 2.8.0)
+
+### Latest Release (Version 2.9.0)
+- Support 
+- Flexible model download endpoint configuration
+- MCP Server improvements (environment variable inheritance, UI guidance, marketplace fixes)
+- Relaxed hardware requirements and expanded compatibility for WCL and above
+- OpenVINO Model Server updated to 2026.1
+- RAG & reranker enhancements for llama.cpp
+- Security patches for command injection vulnerabilities
+
+### Version 2.8.0
 - Introduce additional embedding and reranking models — Qwen3-Embedding-0.6B and Qwen3-Reranker-0.6B.
 - Improve PDF parsing with pypdfium2 and pdfplumber.
 - Improve summarization performance for large PDFs.

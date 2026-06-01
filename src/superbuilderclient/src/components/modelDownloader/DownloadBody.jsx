@@ -15,7 +15,6 @@ import { useContext, useState, useEffect } from "react";
 import { ModelDownloaderContext } from "../context/ModelDownloaderContext";
 import ModelLink from "../modelLink/ModelLink";
 import CommitIdNotification from "./CommitIdNotification";
-import useDataStore from "../../stores/DataStore";
 import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
@@ -35,9 +34,12 @@ const DownloadBody = ({
     setDownloadConsent,
     setDownloadWindowsOpen,
     setWaitingForConsent,
+    setDownloadFailed,
+    setDownloadData,
+    pendingModelSelection,
+    setPendingModelSelection,
     getDownloadLink,
   } = useContext(ModelDownloaderContext);
-  const { getDBConfig } = useDataStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -48,40 +50,31 @@ const DownloadBody = ({
 
   const handleConfirm = () => {
     console.log("confirm download");
+    setDownloadFailed(false);
     setDownloadConsent(true);
     setDownloadInProgress(true);
     setWaitingForConsent(false);
   };
 
   const handleCancel = () => {
+    if (pendingModelSelection) {
+      setPendingModelSelection(null);
+      setDownloadData([]);
+      setWaitingForConsent(false);
+    }
+    setDownloadFailed(false);
+    setDownloadInProgress(false);
     setDownloadConsent(false);
     setDownloadWindowsOpen(false);
-    const requiredModels = [
-      "bge-reranker-base-int8-ov",
-      "bge-base-en-v1.5-int8-ov",
-    ];
-
-    const missingModels = downloadData?.missing_models || [];
-
-    const containsRequiredModels = requiredModels.some((model) =>
-      missingModels.includes(model)
-    );
-
-    const containsOtherModels = missingModels.some(
-      (model) => !requiredModels.includes(model)
-    );
-
-    if (
-      !containsRequiredModels ||
-      (containsOtherModels && missingModels.length < 3)
-    ) {
-      console.log("fetching config");
-      getDBConfig();
-      setDownloadStatus("All downloads complete");
-    }
   };
 
   const handleClose = () => {
+    if (downloadStatus === "Downloads incomplete" && pendingModelSelection) {
+      setPendingModelSelection(null);
+      setDownloadData([]);
+      setWaitingForConsent(false);
+      setDownloadConsent(false);
+    }
     setDownloadWindowsOpen(false);
   };
 

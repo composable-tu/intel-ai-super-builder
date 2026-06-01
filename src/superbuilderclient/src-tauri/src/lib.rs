@@ -71,6 +71,287 @@ use image::ImageReader as ImageReader;
 use std::io::Cursor;
 use image::GenericImageView;
 
+// ─── MCP command-injection prevention ────────────────────────────────────────
+
+/// Allowlisted MCP runtime names (lower-case, canonical form).
+const MCP_COMMAND_ALLOWLIST: &[&str] = &["npx", "uvx", "docker"];
+
+/// Maximum number of args accepted per server entry from ModelScope.
+const MCP_MAX_ARGS_COUNT: usize = 10;
+
+/// Maximum byte-length of a single arg value from ModelScope.
+const MCP_MAX_ARG_LENGTH: usize = 200;
+
+/// Canonicalize a raw command string and verify it is in the allowlist.
+///
+/// Steps:
+/// 1. Reject if it contains control characters, `^`, `%`, `\`, or NUL.
+/// 2. Lowercase.
+/// 3. Strip path components (take basename after the last `/` or `\`).
+/// 4. Strip `.cmd` / `.exe` suffixes (Windows launchers).
+/// 5. Accept only if the result is in [`MCP_COMMAND_ALLOWLIST`].
+///
+/// Returns the canonical name (`"npx"` / `"uvx"`) on success, `None` otherwise.
+fn canonicalize_mcp_command(command: &str) -> Option<String> {
+    let s = command.trim();
+    if s.is_empty() {
+        return None;
+    }
+
+    // Reject suspicious / shell-special characters before any further processing.
+    for c in s.chars() {
+        if c == '^' || c == '%' || c == '\0' || c == '\\' || c.is_control() {
+            return None;
+        }
+    }
+
+    let lower = s.to_lowercase();
+
+    // Strip path components — take everything after the last `/` (or `\` already
+    // excluded above, but keep the split on `/` for Unix-style paths).
+    let basename = lower.rsplit('/').next().unwrap_or(lower.as_str());
+
+    // Strip Windows launcher extensions so "npx.cmd" → "npx".
+    let canonical = basename
+        .strip_suffix(".cmd")
+        .or_else(|| basename.strip_suffix(".exe"))
+        .unwrap_or(basename);
+
+    if MCP_COMMAND_ALLOWLIST.contains(&canonical) {
+        Some(canonical.to_string())
+    } else {
+        None
+    }
+}
+
+/// Return `true` if `arg` is an acceptable package-name / install-target for
+/// `npx` or `uvx`.
+///
+/// Accepted characters: ASCII alphanumeric, `@`, `/`, `.`, `-`, `_`, `[`,
+/// `]`, `=`, `~`, `*`, `+`, `:`.
+/// (`>`, `<`, `,` are excluded — cmd.exe metacharacters on Windows.)
+///
+/// Rejected:
+/// * empty or longer than [`MCP_MAX_ARG_LENGTH`]
+/// * starts with `-`  (flag)
+/// * starts with `./`, `../`, `.\\`, `..\\` (relative path)
+/// * starts with `/`  (absolute Unix path)
+/// * starts with `X:` where X is an ASCII letter (absolute Windows path)
+/// * contains `^`, `%`, NUL, `;`, `&`, `|`, `` ` ``, `$`, `\`, `"`, `'`,
+///   `{`, `}`, `(`, `)`, space, or any control character
+fn validate_mcp_arg(arg: &str) -> bool {
+    if arg.is_empty() || arg.len() > MCP_MAX_ARG_LENGTH {
+        return false;
+    }
+
+    // No flags.
+    if arg.starts_with('-') {
+        return false;
+    }
+
+    // No relative or absolute path prefixes.
+    if arg.starts_with("./")
+        || arg.starts_with("../")
+        || arg.starts_with(".\\")
+        || arg.starts_with("..\\")
+        || arg.starts_with('/')
+    {
+        return false;
+    }
+
+    // No Windows absolute paths (e.g. C:\...).
+    {
+        let mut chars = arg.chars();
+        if let (Some(first), Some(second)) = (chars.next(), chars.next()) {
+            if first.is_ascii_alphabetic() && second == ':' {
+                return false;
+            }
+        }
+    }
+
+    // Allowlist of characters valid in npm / PyPI package names and version
+    // specifiers.  Everything else is rejected.
+    //
+    // Deliberately excluded despite appearing in some version-range syntaxes:
+    //   > <   — cmd.exe redirection operators (BatBadBut / npx.cmd)
+    //   ,     — cmd.exe batch argument delimiter (enables flag smuggling)
+    // ASCII-only to avoid Windows best-fit codepage mapping of Unicode
+    // punctuation to shell metacharacters.
+    for c in arg.chars() {
+        if !c.is_ascii_alphanumeric()
+            && !matches!(
+                c,
+                '@' | '/' | '.' | '-' | '_' | '[' | ']' | '=' | '~' | '*' | '+' | ':'
+            )
+        {
+            return false;
+        }
+    }
+
+    true
+}
+
+/// Parse the raw JSON text returned by the ModelScope API, remove any server
+/// entries whose `command` field is not in the allowlist or whose `args` fail
+/// validation, then re-serialise.
+///
+/// Returns `Err` if the JSON cannot be parsed or if every server entry is
+/// invalid (nothing left to return to the caller).
+fn validate_and_filter_modelscope_response(json_text: &str) -> Result<String, String> {
+    let mut root: serde_json::Value = serde_json::from_str(json_text)
+        .map_err(|e| format!("Failed to parse ModelScope response: {}", e))?;
+
+    // Navigate to data.server_config[*].mcpServers — the structure that the
+    // frontend consumes.  If the path does not exist we pass through unchanged
+    // so that error responses from the API are not swallowed.
+    let server_config = match root
+        .get_mut("data")
+        .and_then(|d| d.get_mut("server_config"))
+        .and_then(|sc| sc.as_array_mut())
+    {
+        Some(arr) => arr,
+        None => {
+            return serde_json::to_string(&root)
+                .map_err(|e| format!("Failed to re-serialise response: {}", e));
+        }
+    };
+
+    let mut total_valid: usize = 0;
+
+    // Validate every element of server_config, not just index 0 — otherwise a
+    // hostile response could smuggle unfiltered entries in later indices.
+    for sc_entry in server_config.iter_mut() {
+        let servers_map = match sc_entry
+            .get_mut("mcpServers")
+            .and_then(|v| v.as_object_mut())
+        {
+            Some(m) => m,
+            None => continue,
+        };
+
+        // Collect keys of entries that fail validation.
+        let invalid_keys: Vec<String> = servers_map
+            .iter()
+            .filter_map(|(key, server)| {
+                // command field is required for stdio servers from ModelScope.
+                let raw_command = match server.get("command") {
+                    // No command key at all → URL-based server, skip command/arg
+                    // validation (env/cwd are still stripped below).
+                    None => return None,
+                    // A present-but-non-string command must be rejected, not
+                    // silently treated as a URL server.
+                    Some(v) => match v.as_str() {
+                        Some(c) => c,
+                        None => {
+                            eprintln!(
+                                "[MCP security] Rejecting server '{}': command is not a string",
+                                key
+                            );
+                            return Some(key.clone());
+                        }
+                    },
+                };
+
+                // Reject if command is not allowlisted.
+                if canonicalize_mcp_command(raw_command).is_none() {
+                    eprintln!(
+                        "[MCP security] Rejecting server '{}': command '{}' is not allowlisted",
+                        key, raw_command
+                    );
+                    return Some(key.clone());
+                }
+
+                // Validate args array if present.
+                if let Some(args_val) = server.get("args") {
+                    match args_val.as_array() {
+                        Some(arr) => {
+                            if arr.len() > MCP_MAX_ARGS_COUNT {
+                                eprintln!(
+                                    "[MCP security] Rejecting server '{}': too many args ({})",
+                                    key,
+                                    arr.len()
+                                );
+                                return Some(key.clone());
+                            }
+                            for arg in arr {
+                                // Every arg must be a string and pass validation;
+                                // non-string values are rejected, not skipped.
+                                match arg.as_str() {
+                                    Some(s) if validate_mcp_arg(s) => {}
+                                    Some(s) => {
+                                        eprintln!(
+                                            "[MCP security] Rejecting server '{}': invalid arg '{}'",
+                                            key, s
+                                        );
+                                        return Some(key.clone());
+                                    }
+                                    None => {
+                                        eprintln!(
+                                            "[MCP security] Rejecting server '{}': non-string arg",
+                                            key
+                                        );
+                                        return Some(key.clone());
+                                    }
+                                }
+                            }
+                        }
+                        None => {
+                            // args is not an array — treat as invalid.
+                            eprintln!(
+                                "[MCP security] Rejecting server '{}': args is not an array",
+                                key
+                            );
+                            return Some(key.clone());
+                        }
+                    }
+                }
+
+                None // passes all checks
+            })
+            .collect();
+
+        for key in &invalid_keys {
+            servers_map.remove(key);
+        }
+
+        // Replace raw command strings with the canonical allowlisted name so
+        // that the value stored in the database is never the untrusted external
+        // string, and strip process-environment attack surface (env / cwd) that
+        // would otherwise allow NODE_OPTIONS / LD_PRELOAD / PATH injection.
+        for server in servers_map.values_mut() {
+            if let Some(obj) = server.as_object_mut() {
+                obj.remove("env");
+                obj.remove("cwd");
+                if let Some(canonical) = obj
+                    .get("command")
+                    .and_then(|v| v.as_str())
+                    .and_then(canonicalize_mcp_command)
+                {
+                    obj.insert(
+                        "command".to_string(),
+                        serde_json::Value::String(canonical),
+                    );
+                }
+            }
+        }
+
+        total_valid += servers_map.len();
+    }
+
+    if total_valid == 0 {
+        return Err(
+            "No valid MCP server configurations found in ModelScope response \
+             (all commands failed allowlist validation)"
+                .to_string(),
+        );
+    }
+
+    serde_json::to_string(&root)
+        .map_err(|e| format!("Failed to re-serialise filtered response: {}", e))
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 #[derive(Serialize)]
 struct MissingModelsResponse {
     missing_models: Vec<String>,
@@ -121,7 +402,7 @@ async fn get_missing_models(
                 }
             }
         }
-        
+
         #[cfg(debug_assertions)]
         println!("Files in directory: {:?}", files_in_directory);
 
@@ -174,7 +455,7 @@ fn set_window_borders(window: tauri::WebviewWindow) -> Result<(), String> {
             };
 
             unsafe {
-                DwmExtendFrameIntoClientArea(HWND(hwnd.0 as isize), &margins).map_err(|err|
+                DwmExtendFrameIntoClientArea(HWND(hwnd.0 as *mut _), &margins).map_err(|err|
                     format!("Error: {:?}", err)
                 )
             }
@@ -226,7 +507,7 @@ async fn fetch_modelscope_mcp_servers(
     // println!("   Page: {}, Size: {}, Category: '{}', Search: '{}'", page_number, page_size, category, search);
 
     let url = "https://www.modelscope.cn/openapi/v1/mcp/servers";
-    
+
     // Build filter based on whether category is empty
     let filter = if category.is_empty() {
         json!({
@@ -238,7 +519,7 @@ async fn fetch_modelscope_mcp_servers(
             "is_hosted": true
         })
     };
-    
+
     let request_body = json!({
         "direction": 1,
         "filter": filter,
@@ -260,7 +541,7 @@ async fn fetch_modelscope_mcp_servers(
         .put(url)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
-        .header("User-Agent", "IntelAIA/2.8.0")
+        .header("User-Agent", "IntelAIA/2.9.0")
         .json(&request_body)
         .send()
         .await
@@ -294,7 +575,7 @@ async fn fetch_modelscope_mcp_by_id(
     // println!("   Page: {}, Size: {}, Category: '{}', Search: '{}'", page_number, page_size, category, search);
 
     let url = format!("https://www.modelscope.cn/openapi/v1/mcp/servers/{}", id);
-    
+
 
     // println!("Creating HTTP client with 30s timeout...");
     let client = reqwest::Client::builder()
@@ -307,7 +588,7 @@ async fn fetch_modelscope_mcp_by_id(
         .get(url)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
-        .header("User-Agent", "IntelAIA/2.8.0")
+        .header("User-Agent", "IntelAIA/2.9.0")
         .send()
         .await
         .map_err(|e| format!("Request failed: {}", e))?;
@@ -328,7 +609,12 @@ async fn fetch_modelscope_mcp_by_id(
     // println!("Response body length: {} bytes", text.len());
     // println!("Response preview: {}...", &text[..text.len().min(200)]);
 
-    Ok(text)
+    // Validate and filter ModelScope MCP server configurations before returning
+    // to the frontend.  This is the earliest point in the pipeline where we can
+    // enforce the command allowlist.
+    let filtered_text = validate_and_filter_modelscope_response(&text)?;
+
+    Ok(filtered_text)
 }
 
 
@@ -502,16 +788,16 @@ mod tests {
     async fn test_fetch_modelscope_mcp_servers_signature() {
         // Test that the function has the correct async signature
         // This is a compilation test to verify the function signature
-        
+
         let _page_number = 1u32;
         let _page_size = 10u32;
         let _category = String::from("communication");
         let _search = String::from("");
-        
+
         // Test that the function can be called (but don't actually execute it)
         // We're just verifying the async function signature compiles correctly
         let _future = fetch_modelscope_mcp_servers(_page_number, _page_size, _category, _search);
-        
+
         // We don't await the future to avoid making actual network calls in tests
         println!("✅ Test: fetch_modelscope_mcp_servers async signature is correct");
     }
@@ -519,14 +805,14 @@ mod tests {
     #[test]
     fn test_json_request_body_structure() {
         use serde_json::json;
-        
+
         // Test that we can build the request body correctly
         let category = String::from("communication");
         let filter = json!({
             "category": category,
             "is_hosted": true
         });
-        
+
         let request_body = json!({
             "direction": 1,
             "filter": filter,
@@ -534,7 +820,7 @@ mod tests {
             "page_size": 10,
             "search": ""
         });
-        
+
         // Verify the structure
         assert!(request_body["direction"].is_number());
         assert!(request_body["filter"].is_object());
@@ -542,14 +828,14 @@ mod tests {
         assert!(request_body["page_number"].is_number());
         assert!(request_body["page_size"].is_number());
         assert!(request_body["search"].is_string());
-        
+
         println!("✅ Test: JSON request body structure is valid");
     }
 
     #[test]
     fn test_empty_category_filter() {
         use serde_json::json;
-        
+
         // Test filter when category is empty
         let category = String::from("");
         let filter = if category.is_empty() {
@@ -562,25 +848,374 @@ mod tests {
                 "is_hosted": true
             })
         };
-        
+
         // Should not have category field when empty
         assert!(filter["is_hosted"].is_boolean());
         assert!(filter.get("category").is_none());
-        
+
         println!("✅ Test: Empty category creates correct filter");
     }
 
     #[test]
     fn test_reqwest_client_creation() {
         use std::time::Duration;
-        
+
         // Test that we can create a reqwest client with timeout
         let client_result = reqwest::Client::builder()
             .timeout(Duration::from_secs(30))
             .build();
-        
+
         // Verify the client was created successfully
         assert!(client_result.is_ok());
         println!("✅ Test: reqwest client can be created with 30s timeout");
+    }
+
+    // ─── MCP validation tests ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_canonicalize_mcp_command_allowlisted() {
+        assert_eq!(canonicalize_mcp_command("npx"), Some("npx".to_string()));
+        assert_eq!(canonicalize_mcp_command("uvx"), Some("uvx".to_string()));
+        // Case-insensitive
+        assert_eq!(canonicalize_mcp_command("NPX"), Some("npx".to_string()));
+        assert_eq!(canonicalize_mcp_command("UVX"), Some("uvx".to_string()));
+        assert_eq!(canonicalize_mcp_command("Npx"), Some("npx".to_string()));
+        // docker is also allowlisted
+        assert_eq!(canonicalize_mcp_command("docker"), Some("docker".to_string()));
+        assert_eq!(canonicalize_mcp_command("DOCKER"), Some("docker".to_string()));
+        assert_eq!(canonicalize_mcp_command("docker.exe"), Some("docker".to_string()));
+        // Surrounding whitespace
+        assert_eq!(canonicalize_mcp_command("  npx  "), Some("npx".to_string()));
+        // Windows .cmd wrapper
+        assert_eq!(canonicalize_mcp_command("npx.cmd"), Some("npx".to_string()));
+        assert_eq!(canonicalize_mcp_command("uvx.exe"), Some("uvx".to_string()));
+        println!("✅ Test: allowlisted commands are accepted");
+    }
+
+    #[test]
+    fn test_canonicalize_mcp_command_rejected() {
+        // Not in allowlist
+        assert_eq!(canonicalize_mcp_command("bash"), None);
+        assert_eq!(canonicalize_mcp_command("cmd"), None);
+        assert_eq!(canonicalize_mcp_command("powershell"), None);
+        assert_eq!(canonicalize_mcp_command("python"), None);
+        assert_eq!(canonicalize_mcp_command("node"), None);
+        assert_eq!(canonicalize_mcp_command("curl"), None);
+        assert_eq!(canonicalize_mcp_command(""), None);
+        // Paths to non-allowlisted binaries
+        assert_eq!(canonicalize_mcp_command("/usr/bin/bash"), None);
+        assert_eq!(canonicalize_mcp_command("../bash"), None);
+        // Suspicious characters cause immediate rejection (before path stripping)
+        assert_eq!(canonicalize_mcp_command("npx^"), None);
+        assert_eq!(canonicalize_mcp_command("%npx%"), None);
+        assert_eq!(canonicalize_mcp_command("npx\0"), None);
+        assert_eq!(canonicalize_mcp_command("npx\\cmd"), None);
+        println!("✅ Test: disallowed commands are rejected");
+    }
+
+    #[test]
+    fn test_canonicalize_mcp_command_path_stripping() {
+        // Path components should be stripped before allowlist check, and the
+        // canonical (safe) name is returned — not the original string.
+        assert_eq!(
+            canonicalize_mcp_command("/usr/local/bin/npx"),
+            Some("npx".to_string())
+        );
+        assert_eq!(
+            canonicalize_mcp_command("C:/Program Files/nodejs/npx"),
+            Some("npx".to_string())
+        );
+        assert_eq!(
+            canonicalize_mcp_command("/home/user/.local/bin/uvx"),
+            Some("uvx".to_string())
+        );
+        // Path traversal to an allowlisted binary: still accepted but canonical
+        // name is returned (not the traversal string).
+        assert_eq!(
+            canonicalize_mcp_command("../npx"),
+            Some("npx".to_string())
+        );
+        assert_eq!(
+            canonicalize_mcp_command("/usr/bin/npx"),
+            Some("npx".to_string())
+        );
+        // A path to a non-allowlisted binary must be rejected.
+        assert_eq!(canonicalize_mcp_command("/usr/bin/bash"), None);
+        println!("✅ Test: path components stripped before allowlist check");
+    }
+
+    #[test]
+    fn test_validate_mcp_arg_valid() {
+        // Plain package names
+        assert!(validate_mcp_arg("mcp-server-fetch"));
+        assert!(validate_mcp_arg("mcp_server_time"));
+        assert!(validate_mcp_arg("some.package"));
+        // Scoped npm packages
+        assert!(validate_mcp_arg("@modelcontextprotocol/server-filesystem"));
+        assert!(validate_mcp_arg("@anthropic/claude-server"));
+        // Version specifiers
+        assert!(validate_mcp_arg("mcp-server-fetch@0.1.0"));
+        assert!(validate_mcp_arg("@scope/pkg@1.2.3"));
+        assert!(validate_mcp_arg("pkg@~1.0"));
+        assert!(validate_mcp_arg("pkg==1.0.0"));
+        // Python extras
+        assert!(validate_mcp_arg("mcp[cli]"));
+        println!("✅ Test: valid args accepted");
+    }
+
+    #[test]
+    fn test_validate_mcp_arg_rejected() {
+        // Flags
+        assert!(!validate_mcp_arg("-y"));
+        assert!(!validate_mcp_arg("--prefer-offline"));
+        assert!(!validate_mcp_arg("--version"));
+        // Local path prefixes
+        assert!(!validate_mcp_arg("./local-pkg"));
+        assert!(!validate_mcp_arg("../relative"));
+        // Absolute paths
+        assert!(!validate_mcp_arg("/usr/local/bin/pkg"));
+        assert!(!validate_mcp_arg("C:\\pkg"));
+        // Shell metacharacters
+        assert!(!validate_mcp_arg("pkg;rm -rf /"));
+        assert!(!validate_mcp_arg("pkg && evil"));
+        assert!(!validate_mcp_arg("pkg|cat /etc/passwd"));
+        assert!(!validate_mcp_arg("`evil`"));
+        assert!(!validate_mcp_arg("$PATH"));
+        assert!(!validate_mcp_arg("pkg name")); // spaces
+        // Empty
+        assert!(!validate_mcp_arg(""));
+        // Too long
+        assert!(!validate_mcp_arg(&"a".repeat(MCP_MAX_ARG_LENGTH + 1)));
+        // Backslash
+        assert!(!validate_mcp_arg("pkg\\version"));
+        // cmd.exe redirection / delimiter metacharacters
+        assert!(!validate_mcp_arg("pkg>out.txt"));
+        assert!(!validate_mcp_arg("pkg<in.txt"));
+        assert!(!validate_mcp_arg("pkg,--flag"));
+        // Non-ASCII (Windows best-fit mapping hardening)
+        assert!(!validate_mcp_arg("pkg＂x"));
+        println!("✅ Test: invalid args rejected");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_valid() {
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "fetch": {
+                            "command": "uvx",
+                            "args": ["mcp-server-fetch"]
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_ok(), "Expected Ok but got: {:?}", result);
+        let out: serde_json::Value = serde_json::from_str(&result.unwrap()).unwrap();
+        let cmd = &out["data"]["server_config"][0]["mcpServers"]["fetch"]["command"];
+        assert_eq!(cmd, "uvx");
+        println!("✅ Test: valid ModelScope response passes filter");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_invalid_command() {
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "evil": {
+                            "command": "bash",
+                            "args": ["-c", "id"]
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_err(), "Expected Err for disallowed command");
+        println!("✅ Test: invalid command rejected by filter");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_mixed() {
+        // One valid server, one invalid — invalid one should be removed.
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "good": {
+                            "command": "npx",
+                            "args": ["mcp-server-fetch"]
+                        },
+                        "bad": {
+                            "command": "powershell",
+                            "args": ["-Command", "evil"]
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_ok());
+        let out: serde_json::Value = serde_json::from_str(&result.unwrap()).unwrap();
+        let servers = &out["data"]["server_config"][0]["mcpServers"];
+        assert!(servers.get("good").is_some(), "valid server should remain");
+        assert!(servers.get("bad").is_none(), "invalid server should be removed");
+        println!("✅ Test: mixed response keeps valid, removes invalid");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_command_canonicalized() {
+        // Raw command "NPX" should be stored as the canonical "npx".
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "server1": {
+                            "command": "NPX",
+                            "args": ["some-mcp-package"]
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_ok());
+        let out: serde_json::Value = serde_json::from_str(&result.unwrap()).unwrap();
+        let cmd = &out["data"]["server_config"][0]["mcpServers"]["server1"]["command"];
+        assert_eq!(cmd, "npx", "command should be normalised to lowercase canonical");
+        println!("✅ Test: command value is canonicalized in response");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_bad_arg() {
+        // Valid command but malicious arg.
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "tricky": {
+                            "command": "npx",
+                            "args": ["--prefer-offline", "mcp-server-fetch"]
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_err(), "flag in args should cause rejection");
+        println!("✅ Test: flag in args causes server to be rejected");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_too_many_args() {
+        let many_args: Vec<serde_json::Value> = (0..=MCP_MAX_ARGS_COUNT)
+            .map(|i| serde_json::Value::String(format!("pkg{}", i)))
+            .collect();
+        let json = serde_json::json!({
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "server": {
+                            "command": "uvx",
+                            "args": many_args
+                        }
+                    }
+                }]
+            }
+        });
+        let result =
+            validate_and_filter_modelscope_response(&serde_json::to_string(&json).unwrap());
+        assert!(result.is_err(), "too many args should cause rejection");
+        println!("✅ Test: too many args cause server to be rejected");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_non_string_command() {
+        // A non-string `command` must be rejected, not treated as a URL server.
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "evil": { "command": ["bash"], "args": ["-c", "id"] }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_err(), "non-string command must be rejected");
+        println!("✅ Test: non-string command rejected");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_non_string_arg() {
+        // A non-string entry inside `args` must be rejected, not skipped.
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "evil": { "command": "npx", "args": [["-e", "evil"]] }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json);
+        assert!(result.is_err(), "non-string arg must be rejected");
+        println!("✅ Test: non-string arg rejected");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_strips_env_and_cwd() {
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [{
+                    "mcpServers": {
+                        "s": {
+                            "command": "npx",
+                            "args": ["mcp-server-fetch"],
+                            "env": { "NODE_OPTIONS": "--require /tmp/evil.js" },
+                            "cwd": "/tmp"
+                        }
+                    }
+                }]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json).unwrap();
+        let out: serde_json::Value = serde_json::from_str(&result).unwrap();
+        let server = &out["data"]["server_config"][0]["mcpServers"]["s"];
+        assert!(server.get("env").is_none(), "env must be stripped");
+        assert!(server.get("cwd").is_none(), "cwd must be stripped");
+        println!("✅ Test: env and cwd stripped from server config");
+    }
+
+    #[test]
+    fn test_validate_and_filter_modelscope_response_all_server_config_entries() {
+        // Entries beyond server_config[0] must also be filtered.
+        let json = r#"{
+            "code": 200,
+            "data": {
+                "server_config": [
+                    { "mcpServers": { "good": { "command": "npx", "args": ["pkg"] } } },
+                    { "mcpServers": { "evil": { "command": "bash", "args": ["-c", "id"] } } }
+                ]
+            }
+        }"#;
+        let result = validate_and_filter_modelscope_response(json).unwrap();
+        let out: serde_json::Value = serde_json::from_str(&result).unwrap();
+        assert!(out["data"]["server_config"][1]["mcpServers"]
+            .get("evil")
+            .is_none());
+        println!("✅ Test: all server_config indices are filtered");
     }
 }

@@ -22,6 +22,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import HelpGuideIcon from '@mui/icons-material/School';
 import LicenseInfoIcon from '@mui/icons-material/Policy';
+import DownloadIcon from '@mui/icons-material/Download';
 import ModalWrapper from '../generalUseModal/generalUseModal';
 import ModelLink from '../modelLink/ModelLink';
 import { Typography, Link } from '@mui/material';
@@ -168,6 +169,7 @@ const Sidebar = ({}) => {
       icon,
       onClick,
       additionalClasses = '',
+      disabled = !isChatReady,
       'data-testid': dataTestId,
     }) => {
       return (
@@ -175,7 +177,7 @@ const Sidebar = ({}) => {
           title={title}
           className={`sidebar-button ` + additionalClasses}
           onClick={onClick}
-          disabled={!isChatReady}
+          disabled={disabled}
           data-testid={dataTestId}
         >
           {icon}
@@ -232,6 +234,7 @@ const Sidebar = ({}) => {
             title={t('sidebar.setting')}
             onClick={toggleSetting}
             icon={<SettingsIcon className="sidebar-icon" fontSize="large" />}
+            disabled={false}
             data-testid="sidebar-settings-button"
           />
         )}
@@ -320,21 +323,33 @@ const Sidebar = ({}) => {
               <Link
                 component="button"
                 variant="body1"
-                onClick={openBugReport}
-                data-testid="sidebar-report-bug-button"
-              >
-                <BugReportIcon sx={{ pr: 1 }} />
-                {'Report a bug'}
-              </Link>
-              <br />
-              <Link
-                component="button"
-                variant="body1"
                 onClick={openHelpGuide}
                 data-testid="sidebar-help-guide-button"
               >
                 <HelpGuideIcon sx={{ pr: 1 }} />
-                {'View the user guide'}
+                {t('topbar.user_guide')}
+              </Link>
+              <br />
+              <Link
+                href="https://www.intel.com/content/www/us/en/download/785597/intel-arc-graphics-windows.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="body1"
+                data-testid="sidebar-gpu-driver-link"
+              >
+                <DownloadIcon sx={{ pr: 1 }} />
+                {t('topbar.content_part_gpu_driver')}
+              </Link>
+              <br />
+              <Link
+                href="https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="body1"
+                data-testid="sidebar-npu-driver-link"
+              >
+                <DownloadIcon sx={{ pr: 1 }} />
+                {t('topbar.content_part_npu_driver')}
               </Link>
               <br />
               <Link
@@ -345,6 +360,16 @@ const Sidebar = ({}) => {
               >
                 <LicenseInfoIcon sx={{ pr: 1 }} />
                 {t('topbar.content_part_9')}
+              </Link>
+              <br />
+              <Link
+                component="button"
+                variant="body1"
+                onClick={openBugReport}
+                data-testid="sidebar-report-bug-button"
+              >
+                <BugReportIcon sx={{ pr: 1 }} />
+                {t('topbar.report_bug')}
               </Link>
             </div>
           </div>

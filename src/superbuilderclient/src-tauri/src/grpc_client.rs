@@ -22,6 +22,7 @@ use tauri::Emitter;
 use serde::{ Deserialize };
 use serde_json::{ json };
 
+#[allow(dead_code)]
 pub mod super_builder {
     tonic::include_proto!("super_builder");
 }

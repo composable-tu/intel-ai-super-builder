@@ -11,7 +11,7 @@ import useDataStore from "../../stores/DataStore";
 import { useTranslation } from 'react-i18next';
 
 const ModelDownloader = () => {
-  const { config, assistant } = useDataStore();
+  const { config, assistant, setAssistant, setConfig } = useDataStore();
   const [downloadStatus, setDownloadStatus] = useState("Nothing to download!");
   const hasDownloadedRef = useRef(false);
   const modelStatusesRef = useRef([]);
@@ -29,7 +29,10 @@ const ModelDownloader = () => {
     downloadWindowsOpen,
     setDownloadWindowsOpen,
     setDownloadFailed,
-    removeModelsFromUrl
+    pendingModelSelection,
+    setPendingModelSelection,
+    removeModelsFromUrl,
+    resetDownloadState,
   } = useContext(ModelDownloaderContext);
 
   useEffect(() => {
@@ -88,6 +91,37 @@ const ModelDownloader = () => {
     }
   }, [downloadData?.missing_models, downloadConsent, waitingForConsent]);
 
+  useEffect(() => {
+    if (
+      downloadStatus === "Awaiting consent to download models" &&
+      downloadData?.missing_models?.length > 0 &&
+      downloadConsent === false &&
+      waitingForConsent === true
+    ) {
+      setDownloadWindowsOpen(true);
+    }
+  }, [downloadStatus, downloadData?.missing_models, downloadConsent, waitingForConsent]);
+
+  const applyPendingModelSelection = () => {
+    if (!pendingModelSelection) {
+      return;
+    }
+
+    const updatedAssistant = {
+      ...assistant,
+      models: {
+        ...assistant.models,
+        [pendingModelSelection.modelType]: pendingModelSelection.modelName,
+      },
+    };
+    setAssistant(updatedAssistant);
+    setConfig({
+      ...config,
+      ActiveAssistant: updatedAssistant,
+    });
+    setPendingModelSelection(null);
+  };
+
   const updateModelStatus = (modelName, newStatusMessage) => {
     console.log(modelName, newStatusMessage);
     console.log(modelStatusesRef.current);
@@ -114,11 +148,33 @@ const ModelDownloader = () => {
 
   const downloadFiles = async () => {
     try {
+      // Clear any prior failure and rebuild statuses fresh for this attempt
+      setDownloadFailed(false);
       setDownloadInProgress(true);
       setDownloadStatus("Downloading");
-      downloadData.missing_models.forEach((modelName) => {
-        updateModelStatus(modelName, "Downloading");
-      });
+      const activeStatuses = Object.entries(assistant.models).map(([modelType, modelName]) => ({
+        modelType,
+        modelName,
+        statusMessage: downloadData.missing_models.includes(modelName) ? "Downloading" : "Ready",
+      }));
+      const activeModelNames = new Set(activeStatuses.map(({ modelName }) => modelName));
+      const pendingStatuses = downloadData.missing_models
+        .filter((modelName) => !activeModelNames.has(modelName))
+        .map((modelName) => {
+          const model = assistant.all_models.find((entry) => entry.full_name === modelName);
+          return {
+            modelType:
+              pendingModelSelection?.modelName === modelName
+                ? pendingModelSelection.modelType
+                : model?.model_type || "model",
+            modelName,
+            statusMessage: "Downloading",
+          };
+        });
+      const freshStatuses = [...activeStatuses, ...pendingStatuses];
+      setModelStatuses(freshStatuses);
+      modelStatusesRef.current = freshStatuses;
+
       console.log("invoking download file, ", downloadData);
       const downloadPromises = downloadData.missing_models.map((filename) => {
         const model = assistant.all_models.find(
@@ -138,7 +194,7 @@ const ModelDownloader = () => {
             }
           } catch (error) {
             console.error("Invalid URL:", error);
-            return null;
+            return Promise.reject(new Error(`Invalid URL for model ${filename}`));
           }
         }
         console.log("Download model ", model, "from url: ", fileUrl);
@@ -157,9 +213,7 @@ const ModelDownloader = () => {
             ? result.value.includes("Error")
               ? `Not available ${result.value}`
               : "Ready"
-            : result.status === "rejected"
-              ? `Failed ${result.reason}`
-              : `Not available ${result.reason}`;
+            : `Failed ${result.reason}`;
         updateModelStatus(modelName, statusMessage);
       });
 
@@ -173,21 +227,26 @@ const ModelDownloader = () => {
         throw new Error("One or more models failed to download.");
       }
       hasDownloadedRef.current = true;
-      setDownloadInProgress(false);
-      setDownloadData([]);
-      setDownloadConsent(false);
+      applyPendingModelSelection();
+      resetDownloadState({ clearData: true, clearFailure: true });
       setDownloadStatus("All downloads complete");
     } catch (error) {
       console.error("Error downloading files:", error);
       setDownloadStatus("Downloads incomplete");
+      resetDownloadState();
       setDownloadFailed(true);
     }
   };
 
+  const canRenderDownloaderModal =
+    downloadWindowsOpen &&
+    (downloadStatus !== "Awaiting consent to download models" ||
+      (downloadData?.missing_models?.length > 0 && downloadConsent === false));
+
   return (
     <>
       {
-        downloadWindowsOpen && (
+        canRenderDownloaderModal && (
           <div className="modal-overlay">
             <div
               className="downloader-container modal-content"
