@@ -157,7 +157,7 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 ## What's New
 
 ### Latest Release (Version 2.9.0)
-- Support Flexible model download endpoint configuration
+- Support flexible model download endpoint configuration
 - MCP Server improvements (environment variable inheritance, UI guidance, marketplace fixes)
 - Relaxed hardware requirements and expanded compatibility for WCL and above
 - OpenVINO Model Server updated to 2026.1
