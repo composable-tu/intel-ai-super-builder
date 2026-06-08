@@ -157,8 +157,7 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 ## What's New
 
 ### Latest Release (Version 2.9.0)
-- Support 
-- Flexible model download endpoint configuration
+- Support Flexible model download endpoint configuration
 - MCP Server improvements (environment variable inheritance, UI guidance, marketplace fixes)
 - Relaxed hardware requirements and expanded compatibility for WCL and above
 - OpenVINO Model Server updated to 2026.1
@@ -166,11 +165,9 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 - Security patches for command injection vulnerabilities
 
 ### Version 2.8.0
-
-**Previous Installers:**
 - OVMS version: [Intel(R) AI Super Builder_Installer_IO_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Installer_IO_2.8.0.316.exe)
 - llama.cpp version: [Intel(R) AI Super Builder_Installer_IG_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Installer_IG_2.8.0.319.exe)
-- Service installer: [Intel(R) AI Super Builder_Service_Installer_IO_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Service_Installer_IO_2.8.0.316.exe)
+- OVMS Service installer: [Intel(R) AI Super Builder_Service_Installer_IO_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Service_Installer_IO_2.8.0.316.exe)
 
 - Introduce additional embedding and reranking models — Qwen3-Embedding-0.6B and Qwen3-Reranker-0.6B.
 - Improve PDF parsing with pypdfium2 and pdfplumber.
