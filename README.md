@@ -53,10 +53,7 @@ These assistants streamline everyday tasks and deliver intelligent solutions by 
   | Graphics      | Integrated Intel® Graphics                                   | Integrated Intel® Arc™ Graphics             |
   | Network       | Broadband connection for LLMs and other components’ download |                                             |
 > [!NOTE]
->  * Intel® AI Super Builder has been validated on a limited set of Intel AIPC: MTL, LNL, ARL and PTL systems.
-> * Minimum driver versions required:
->   * Intel Graphics: **32.0.101.8531**
->   * NPU: **32.0.100.4239**
+> * Intel® AI Super Builder has been validated on a limited set of Intel AIPC: MTL, LNL, ARL and PTL systems.
 > * Latest drivers are recommended for optimal performance.
 
 
@@ -169,6 +166,12 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 - Security patches for command injection vulnerabilities
 
 ### Version 2.8.0
+
+**Previous Installers:**
+- OVMS version: [Intel(R) AI Super Builder_Installer_IO_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Installer_IO_2.8.0.316.exe)
+- llama.cpp version: [Intel(R) AI Super Builder_Installer_IG_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Installer_IG_2.8.0.319.exe)
+- Service installer: [Intel(R) AI Super Builder_Service_Installer_IO_2.8.0.exe](https://aibuilder.intel.com/installers/Intel(R)%20AI%20Super%20Builder_Service_Installer_IO_2.8.0.316.exe)
+
 - Introduce additional embedding and reranking models — Qwen3-Embedding-0.6B and Qwen3-Reranker-0.6B.
 - Improve PDF parsing with pypdfium2 and pdfplumber.
 - Improve summarization performance for large PDFs.
