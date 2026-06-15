@@ -411,8 +411,7 @@
       "part_1": "您的硬體與此針對 NPU 深度最佳化的模型不相容",
       "part_2": "請檢查最低硬體需求：",
       "part_3": "CPU：英特爾® 酷睿™ Ultra 處理器第 2 代（代號 Lunar Lake）",
-      "part_4": "NPU 驅動程式：建議從以下位址安裝最新版本：",
-      "part_4_url": "https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html"
+      "part_4": "NPU 驅動程式：建議從以下位址安裝最新版本："
     },
     "notice": {
       "steps": {
