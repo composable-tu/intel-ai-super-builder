@@ -44,7 +44,7 @@
       "resp_removing_selected_files": "正在移除檔案...",
       "resp_removed_selected_files": "檔案已移除...",
       "resp_adding_file": "正在新增檔案：\n",
-      "resp_upload_completed_1": "無法新增檔案，請嘗試較小檔案或重新啟動應用程式。",
+      "resp_upload_completed_1": "無法新增檔案，請嘗試較小檔案或重新啟動應用程式",
       "resp_upload_completed_2": "部分檔案新增失敗：\n檔案可能已取消/重複/格式不支援\n已成功新增檔案：",
       "resp_upload_completed_3": "檔案新增失敗：\n檔案可能已取消/重複/格式不支援"
     }
