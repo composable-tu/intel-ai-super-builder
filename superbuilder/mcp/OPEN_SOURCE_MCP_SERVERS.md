@@ -120,14 +120,14 @@ Explore our comprehensive video demonstrations to see MCP servers in action. All
 ### 🕒 Time Zone Agent  
 **Features:** Get current time across different time zones worldwide  
 **Video:** `media\SuperBuilder_Demo_Time_MCP_Server.mp4`  
-**GitHub Link:** [View Video](https://github.com/intel/intel-ai-assistant-builder/blob/main/media/SuperBuilder_Demo_Time_MCP_Server.mp4)
+**GitHub Link:** [View Video](https://github.com/intel/intel-ai-builder/blob/main/superbuilder/media/SuperBuilder_Demo_Time_MCP_Server.mp4)
 
 ### 🌐 Website Fetch Agent
 **Features:** Fetch and process website content using the fetch MCP server  
 **Video:** `media\SuperBuilder_Demo_Fetch_Website_MCP_Server.mp4`  
-**GitHub Link:** [View Video](https://github.com/intel/intel-ai-assistant-builder/blob/main/media/SuperBuilder_Demo_Fetch_Website_MCP_Server.mp4)
+**GitHub Link:** [View Video](https://github.com/intel/intel-ai-builder/blob/main/superbuilder/media/SuperBuilder_Demo_Fetch_Website_MCP_Server.mp4)
 
 ### 📁 File System Agent
 **Features:** Access and manage your local file system  
 **Video:** `media\SuperBuilder_Demo_File_System_MCP_Server.mp4`  
-**GitHub Link:** [View Video](https://github.com/intel/intel-ai-assistant-builder/blob/main/media/SuperBuilder_Demo_File_System_MCP_Server.mp4)
+**GitHub Link:** [View Video](https://github.com/intel/intel-ai-builder/blob/main/superbuilder/media/SuperBuilder_Demo_File_System_MCP_Server.mp4)

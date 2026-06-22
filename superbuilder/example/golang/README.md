@@ -1,5 +1,5 @@
-# Go Client for Intel® AI Assistant Builder Service
-This folder contains a simple Go client designed to communicate with Intel® AI Assistant Builder Service.
+# Go Client for Intel® AI Super Builder Service
+This folder contains a simple Go client designed to communicate with Intel® AI Super Builder Service.
 
 ## Install Dependencies
 - Please ensure that **[Go](https://go.dev/dl/)** is installed on your system. Then, navigate to the `example\golang` directory and download the  necessary modules:
@@ -9,7 +9,7 @@ go mod download
 ```
 
 ## How to Run
-- Before executing the Go Client, please ensure that Intel® AI Assistant Builder Service is already running.
+- Before executing the Go Client, please ensure that Intel® AI Super Builder Service is already running.
 ```
 cd example\golang
 go run .

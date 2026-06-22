@@ -1,4 +1,4 @@
-# Vision & Translation demos on local AI PC with Intel AI Assistant Builder
+# Vision & Translation demos on local AI PC with Intel AI Super Builder
 
 This project is a collection of SuperBuilder Service API demos using Streamlit framework. It contains example using local LLM for vision and and translation tasks. 
 
@@ -8,8 +8,8 @@ It supports image upload, vision model inference (receipt scanning, image labeli
 
 ## Prerequisites
 
- - Intel AI Assistant Builder v1.2.1 or above
- - You have Qwen2.5-7B-Instruct-int4-ov and Phi-3.5-vision-instruct-int4-ov downloaded using AI Assistant Builder
+ - Intel AI Super Builder v1.2.1 or above
+ - You have Qwen2.5-7B-Instruct-int4-ov and Phi-3.5-vision-instruct-int4-ov downloaded using AI Super Builder
 ---
 
 
@@ -25,7 +25,7 @@ It supports image upload, vision model inference (receipt scanning, image labeli
   - (See `app.py`) Translate text using a language model backend
 
 - **gRPC Backend**:  
-  - Connects to AI Assistant Builder Service for model inference
+  - Connects to AI Super Builder Service for model inference
 
 - **User Experience**:  
   - Responsive two-panel layout
@@ -35,7 +35,7 @@ It supports image upload, vision model inference (receipt scanning, image labeli
 ---
 
 
-## Example: Direct AI Assistant Builder service API Calls
+## Example: Direct AI Super Builder service API Calls
 
 Below are code snippets from this demo, showing how to connect to the Builder backend, get configuration, set the model, and run a chat/translation.
 
@@ -160,7 +160,7 @@ MIT License (or your preferred license)
 
 ## Credits
 
-- Built with [Intel AI Assistant Builder](#),  [Streamlit](https://streamlit.io/)
+- Built with [Intel AI Super Builder](#),  [Streamlit](https://streamlit.io/)
 
 ---
 

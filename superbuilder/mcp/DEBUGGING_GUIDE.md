@@ -2,7 +2,7 @@
 
 ## Overview
 
-All MCP calls in Intel AI Assistant Builder follow 2 steps. By understanding these steps you will have enough understanding on how to debug MCP in Intel AI Assistant Builder.
+All MCP calls in Intel AI Super Builder follow 2 steps. By understanding these steps you will have enough understanding on how to debug MCP in Intel AI Super Builder.
 
 ## Step 1 - MCP Agent Call
 
@@ -21,7 +21,7 @@ When Tool is called, it's indicated by the phrase `Start calling tool <tool name
 
 ### Method 1 - Debug Logs
 
-If you have access to Intel AI Assistant Builder Debug build, you can refer to the logs located at `C:\Temp\IntelAia\*.pyllmserv.log` and search for `/chat/completions` or `openai._base_client`.
+If you have access to Intel AI Super Builder Debug build, you can refer to the logs located at `C:\Temp\IntelAia\*.pyllmserv.log` and search for `/chat/completions` or `openai._base_client`.
 
 ### Method 2 - Wireshark
 
@@ -40,7 +40,7 @@ When you are unable to get a Debug Build, you can always use `Wireshark` to snif
         ```
     ![wireshark set filter](./images/wireshark-2.png)
 
-4. Once you press the arrow, you are ready to sniff package. Start with a simple `hello` prompt in Intel AI Assistant Builder.
+4. Once you press the arrow, you are ready to sniff package. Start with a simple `hello` prompt in Intel AI Super Builder.
 
     ![wireshark hello](./images/wireshark-3.png)
 
@@ -48,7 +48,7 @@ When you are unable to get a Debug Build, you can always use `Wireshark` to snif
 
     ![wireshark hello](./images/wireshark-4.png)
 
-6. Using your favourite editor, you now have access to the payload sent from Intel AI Assistant Builder to the `ovms.exe`.
+6. Using your favourite editor, you now have access to the payload sent from Intel AI Super Builder to the `ovms.exe`.
 
     ![wireshark hello json](./images/wireshark-5.png)
 

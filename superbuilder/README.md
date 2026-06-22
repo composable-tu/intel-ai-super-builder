@@ -93,9 +93,9 @@ To get started with the UI source code, refer to the [UI development guide](src/
 ### API Documentation
   Find the API documentation in the following links:
 
-  [API Documentation - Latest](https://intel.github.io/intel-ai-super-builder/v2.0.0)
+  [API Documentation - Latest](https://intel.github.io/intel-ai-builder/v2.0.0)
 
-  [API Documentation - v1.2.0](https://intel.github.io/intel-ai-super-builder/v1.2.0)
+  [API Documentation - v1.2.0](https://intel.github.io/intel-ai-builder/v1.2.0)
 
 <br>
 
@@ -177,7 +177,7 @@ For comprehensive troubleshooting guidance, installation tips, and a complete li
 - Upgrade model service version — OVMS v2026.0 and llama.cpp b7992
 
 ## Get Support
-For technical questions and feature requests, please use GitHub [Issues](https://github.com/intel/intel-ai-super-builder/issues).
+For technical questions and feature requests, please use GitHub [Issues](https://github.com/intel/intel-ai-builder/issues).
 
 We would love to hear about your experience. Please contact us at [&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#046;&#097;&#105;&#098;&#117;&#105;&#108;&#100;&#101;&#114;&#064;&#105;&#110;&#116;&#101;&#108;&#046;&#099;&#111;&#109;](mailto:support.aibuilder@intel.com).
 

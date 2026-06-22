@@ -1,6 +1,6 @@
 # SuperBuilder Python gRPC Client API
 
-A sample Python client library for interacting with Intel AI Assistant Builder (SuperBuilder) via gRPC. This client provides easy-to-use functions to check status, manage models, download installers, and configure the SuperBuilder service.
+A sample Python client library for interacting with Intel AI Super Builder (SuperBuilder) via gRPC. This client provides easy-to-use functions to check status, manage models, download installers, and configure the SuperBuilder service.
 
 ## Overview
 
@@ -14,7 +14,7 @@ This client demonstrates how to:
 ## Prerequisites
 
 - Python 3.8 or higher
-- Intel AI Assistant Builder (SuperBuilder) running locally
+- Intel AI Super Builder (SuperBuilder) running locally
 - SuperBuilder gRPC service accessible at `localhost:5006`
 
 ## Installation

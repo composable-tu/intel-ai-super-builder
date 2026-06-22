@@ -1,7 +1,7 @@
-# Super Agent (MCP) Workflow Guide for Intel AI Assistant Builder
+# Super Agent (MCP) Workflow Guide for Intel AI Super Builder
 
 ## Getting Started
-Please refer to the **"Super Agent (MCP)"** section in the [user guide](https://aibuilder.intel.com/Intel%20AI%20Assistant%20Builder%20User%20Guide.pdf) to learn the details about the Intel AI Assistant Builder MCP workflow.
+Please refer to the **"Super Agent (MCP)"** section in the [user guide](https://aibuilder.intel.com/Intel%20AI%20Super%20Builder%20User%20Guide.pdf) to learn the details about the Intel AI Super Builder MCP workflow.
 
 ## Documentation Index
 
@@ -20,7 +20,7 @@ Set up community-maintained MCP servers from the official Model Context Protocol
 - Demo videos for Time Zone, Website Fetch, and File System agents
 
 ### 3. [Debugging Guide](./DEBUGGING_GUIDE.md)
-Master debugging techniques for MCP calls in Intel AI Assistant Builder:
+Master debugging techniques for MCP calls in Intel AI Super Builder:
 - Understanding MCP Agent and Tool calls
 - Using debug logs and Wireshark for packet inspection
 - Step-by-step debugging examples with payload analysis

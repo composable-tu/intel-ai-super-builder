@@ -1,3 +1,5 @@
+<a name="toc"></a>
+
 [![A pile of legos with white text AI-generated content may be incorrect.](./poster.png)](https://aibuilder.intel.com)
 
 <h1 align="center">Intel® AI Builder</h1>

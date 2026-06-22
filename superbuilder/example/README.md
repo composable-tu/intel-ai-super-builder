@@ -20,7 +20,6 @@
 >    1. Download [`protoc-27.2-win64.zip`](https://github.com/protocolbuffers/protobuf/releases/tag/v27.2) file and extract it to the desired location on your computer.
 >    2. Set an environment variable named `PROTOC` with the value `\path\to\protoc-27.2-win64\bin\protoc.exe` on your Windows system.
 >    3. Open PowerShell and run `$env:PROTOC` to ensure the path is correctly set.
-     ![Protoc](../media/protoc.png)
 </details>
 
 <details>
