@@ -28,7 +28,7 @@ For more detail, read Intel's article, [Solving the Agentic AI Trilemma: Cost, S
 The first SuperClaw release is designed for a two-system setup:
 
 - **An AI PC companion device**, such as a Wildcat Lake 16GB system, where the SuperClaw desktop app runs.
-- **A model-serving workstation** with four B70 cards, where Qwen3-Coder-Next-80B runs.
+- **A model-serving workstation** with four B70 cards, where Qwen3-Coder-Next-80B runs. Refer to the [User Guide](./superclaw-ctl/USER-GUIDE.md) for more details.
 
 In this setup, users interact with SuperClaw on the AI PC while the heavier model workload runs on the B70 workstation. Based on Intel testing, this configuration provides the best user experience for the initial release.
 
