@@ -1,5 +1,3 @@
-[![A pile of legos with white text AI-generated content may be incorrect.](media/poster.jpeg)](https://aibuilder.intel.com)
-
 <h1 align="center">Intel® AI Super Builder</h1>
 
 <p align="justify"><strong>Intel® AI Super Builder</strong> is Intel’s Gen-AI reference design platform that enables the rapid creation of custom AI assistants and agents tailored to specific industry needs and proprietary data.
