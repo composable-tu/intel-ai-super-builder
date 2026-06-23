@@ -23,10 +23,10 @@
 
 ## Installation
 
-Download the `superclaw-ctl` binary, and extract to your local bin
+Download the [superclaw-ctl](./binary_build/superclaw-ctl-v1.0.0-linux-x86-64.tar.gz) binary, and extract to your local bin
 
 ```bash
-tar -xzf superclaw-ctl.tar.gz
+tar -xzf superclaw-ctl-<ver>.tar.gz
 chmod +x superclaw-ctl
 sudo mv superclaw-ctl /usr/local/bin/
 ```
