@@ -26,7 +26,7 @@ If the server uses a proxy, configure `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY
 
 ## Install `superclaw-ctl`
 
-Download the `superclaw-ctl` binary on the model-serving workstation, then install it:
+Download the [superclaw-ctl](./binary_build/superclaw-ctl-v1.0.0-linux-x86-64.tar.gz) binary on the model-serving workstation, then install it:
 
 ```bash
 tar -xzf superclaw-ctl.tar.gz
