@@ -1,0 +1,11 @@
+.mcp-workflow-icon {
+    width: 24px;
+    height: 24px;
+    padding-right: 8px;
+    filter: invert(1);
+}
+
+.mcp-workflow-button {
+    width: 25%;
+    align-self: center;
+}

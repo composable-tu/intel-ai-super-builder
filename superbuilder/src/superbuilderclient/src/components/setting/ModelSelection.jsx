@@ -1,0 +1,558 @@
+import React, { useEffect, useState, useContext } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  FormHelperText,
+  Select,
+  MenuItem,
+  Typography,
+} from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
+import { useTranslation } from 'react-i18next';
+
+import SimpleAlert from '../generalUseModal/SimpleAlert';
+import { ChatContext } from '../context/ChatContext';
+import { RagReadyContext } from '../context/RagReadyContext';
+import { ModelDownloaderContext } from '../context/ModelDownloaderContext';
+
+import useDataStore from '../../stores/DataStore';
+import useModelStore from '../../stores/ModelStore';
+
+const ModelSelection = () => {
+  const { t } = useTranslation();
+  const config = useDataStore(state => state.config);
+  const assistant = useDataStore(state => state.assistant);
+  const { setAssistant, setConfig, setViewModel, getDBConfig } = useDataStore();
+
+  const hfDownloadOptions = useModelStore(state => state.hfDownloadOptions);
+  const removeModelDialog = useModelStore(state => state.removeModelDialog);
+  const { removeModelName, removeModel, openRemoveModelDialog, closeRemoveModelDialog } =
+    useModelStore();
+
+  const { isChatReady, newChatModelNeeded } = useContext(ChatContext);
+  const { ready } = useContext(RagReadyContext);
+  const {
+    waitingForConsent,
+    downloadInProgress,
+    downloadFailed,
+    resetDownloadState,
+    setDownloadConsent,
+    setDownloadData,
+    setDownloadFailed,
+    setDownloadWindowsOpen,
+    setPendingModelSelection,
+    setWaitingForConsent,
+  } = useContext(ModelDownloaderContext);
+
+  const [downloadedModels, setDownloadedModels] = useState({});
+  const [showEmbeddingConfirm, setShowEmbeddingConfirm] = useState(false);
+  const [pendingEmbeddingModel, setPendingEmbeddingModel] = useState(null);
+
+  const modelSwitch = async (type, model_name) => {
+    console.log('Model Switch:', type, model_name);
+    const updatedAssistant = {
+      ...assistant,
+      models: {
+        ...assistant.models,
+        [type]: model_name,
+      },
+    };
+    const updatedConfig = {
+      ...config,
+      ActiveAssistant: updatedAssistant,
+    };
+    setAssistant(updatedAssistant);
+    setConfig(updatedConfig);
+  };
+
+  const requestModelDownload = (type, modelName) => {
+    console.log('Request model download:', type, modelName);
+    setPendingModelSelection({ modelType: type, modelName });
+    setDownloadFailed(false);
+    setDownloadConsent(false);
+    setDownloadWindowsOpen(false);
+    setDownloadData({
+      missing_models: [modelName],
+      models_dir_path: config.local_model_hub,
+    });
+    setWaitingForConsent(true);
+  };
+
+  const handleModelSelection = (type, modelName) => {
+    if (assistant.models[type] === modelName) {
+      return;
+    }
+
+    if (downloadedModels[modelName] === true) {
+      modelSwitch(type, modelName);
+      return;
+    }
+
+    requestModelDownload(type, modelName);
+  };
+
+  const endPointSwitch = async endpoint => {
+    console.log('Endpoint Switch:', endpoint);
+    const updatedConfig = {
+      ...config,
+      download_endpoint: endpoint,
+    };
+
+    const newViewModel = Object.keys(updatedConfig).reduce((acc, key) => {
+      if (typeof updatedConfig[key] !== 'object' || updatedConfig[key] === null) {
+        acc[key] = updatedConfig[key];
+      }
+      return acc;
+    }, {});
+    // Endpoint changes are passive: save the endpoint and clear stale failure
+    // state, but do not trigger a retry/download popup. A manual model download
+    // starts only when the user selects an undownloaded model again.
+    setPendingModelSelection(null);
+    resetDownloadState({ clearFailure: true, clearConsent: true });
+    await setViewModel(newViewModel);
+    await getDBConfig();
+    if (config.ActiveAssistant?.all_models) {
+      config.ActiveAssistant.all_models.forEach(model => {
+        isModelDownloaded(model.full_name);
+      });
+    }
+  };
+
+  const handleRemoveClick = modelName => {
+    console.log('Remove Model Clicked:', modelName);
+    useModelStore.getState().setRemoveModelname(modelName);
+    openRemoveModelDialog();
+  };
+
+  const modelRemove = async () => {
+    closeRemoveModelDialog();
+    await removeModel();
+    await getDBConfig();
+  };
+
+  const handleEmbeddingConfirm = async () => {
+    setShowEmbeddingConfirm(false);
+    // pybackend detects the embedding model change on next config load,
+    // closes Qdrant, deletes the vectordb directory and reinitialises.
+    // The frontend only needs to trigger the model switch.
+    if (pendingEmbeddingModel) {
+      handleModelSelection('embedding_model', pendingEmbeddingModel);
+    }
+    setPendingEmbeddingModel(null);
+  };
+
+  const handleEmbeddingCancel = () => {
+    setShowEmbeddingConfirm(false);
+    setPendingEmbeddingModel(null);
+  };
+
+  const canSwitchEndpoint = () => {
+    // Block endpoint changes during active download to prevent corruption
+    if (downloadInProgress) {
+      return false;
+    }
+
+    // Allow endpoint changes in these scenarios:
+    // 1. Before download starts (initial setup)
+    if (waitingForConsent) {
+      return true;
+    }
+
+    // 2. After any download failure (complete or partial)
+    if (downloadFailed) {
+      return true;
+    }
+
+    // 3. No chat model is available yet
+    if (newChatModelNeeded) {
+      return true;
+    }
+
+    // 4. No models have been checked yet (initial state)
+    if (Object.keys(downloadedModels).length === 0) {
+      return true;
+    }
+
+    // 5. All checked models failed to download
+    if (Object.values(downloadedModels).every(v => v === false)) {
+      return true;
+    }
+
+    // 6. System is fully operational
+    if (ready && isChatReady) {
+      return true;
+    }
+
+    // Default: disable during loading/transitional states
+    return false;
+  };
+
+  const isModelDownloaded = async modelName => {
+    const modelPath = config.local_model_hub;
+    try {
+      const existsResult = await invoke('path_exists', {
+        path: modelPath + modelName,
+      });
+      setDownloadedModels(prev => ({ ...prev, [modelName]: existsResult }));
+    } catch (error) {
+      console.error(`Error checking model ${modelName}:`, error);
+      setDownloadedModels(prev => ({ ...prev, [modelName]: false }));
+    }
+  };
+
+  // When models list changes, check their download status
+  useEffect(() => {
+    if (config.ActiveAssistant?.all_models) {
+      config.ActiveAssistant.all_models.forEach(model => {
+        isModelDownloaded(model.full_name);
+      });
+    }
+  }, [config.ActiveAssistant]);
+
+  return (
+    <Box>
+      <Box className="model-switch-card">
+          <FormHelperText sx={{ fontSize: '11px', marginX: '0px' }}>
+            {t('setting.models.current.currentllm_tips')}
+          </FormHelperText>
+        <Typography sx={{ fontWeight: 'bold', fontSize: '14px', paddingBottom: '4px' }}>{t('setting.models.current.currentllm')}</Typography>
+        <FormControl fullWidth size="small">
+          <Select
+            data-testid="chat-model-select"
+            value={config.ActiveAssistant.models.chat_model}
+            renderValue={value => value}
+            onChange={event => {
+              const modelName = event.target.value;
+              handleModelSelection('chat_model', modelName);
+            }}
+            disabled={
+              config.ActiveAssistant.all_models === undefined
+                ? true
+                : newChatModelNeeded
+                  ? false
+                  : ready && isChatReady
+                    ? false
+                    : waitingForConsent
+                      ? false
+                      : true
+            }
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8,
+                  overflowY: 'auto',
+                },
+                'data-testid': 'model-select-menu-paper',
+              },
+            }}
+            sx={{ width: '100%', fontSize: '14px' }}
+          >
+            <MenuItem
+              disabled
+              value=""
+              sx={{
+                fontSize: '14px',
+              }}
+            >
+              <em>{t('setting.models.recommended')}</em>
+            </MenuItem>
+            {config.ActiveAssistant.recommended_models?.map((model, index) => (
+              <MenuItem
+                key={index}
+                value={model.model}
+                data-testid={`chat-model-option-${model.model}`}
+                sx={{
+                  justifyContent: 'space-between',
+                  fontSize: '14px',
+                  paddingRight: '4px',
+                }}
+              >
+                {model.model}
+                {config.ActiveAssistant.models.chat_model === model.model && (
+                  <CheckIcon fontSize="small" sx={{ color: 'green' }} />
+                )}
+                {config.ActiveAssistant.models.chat_model !== model.model &&
+                  (downloadedModels[model.model] === true ? (
+                    <DeleteIcon
+                      data-testid="delete-recommended-model-icon"
+                      fontSize="small"
+                      onClick={event => {
+                        event.stopPropagation();
+                        handleRemoveClick(model.model);
+                      }}
+                      sx={{ color: 'red' }}
+                    />
+                  ) : (
+                    <DownloadIcon
+                      fontSize="small"
+                      onClick={event => {
+                        event.stopPropagation();
+                      }}
+                      sx={{ color: 'grey' }}
+                    />
+                  ))}
+              </MenuItem>
+            ))}
+            <MenuItem
+              disabled
+              value=""
+              sx={{
+                fontSize: '14px',
+              }}
+            >
+              <em>{t('setting.models.other')}</em>
+            </MenuItem>
+            {config.ActiveAssistant.all_models
+              .filter(
+                model =>
+                  !config.ActiveAssistant.recommended_models.some(
+                    recommended => recommended.model === model.full_name
+                  ) && model.model_type === 'chat_model'
+              )
+              .map((model, index) => (
+                <MenuItem
+                  key={index}
+                  value={model.full_name}
+                  data-testid={`chat-model-option-${model.full_name}`}
+                  sx={{
+                    justifyContent: 'space-between',
+                    fontSize: '14px',
+                    paddingRight: '4px',
+                  }}
+                >
+                  {model.full_name}
+                  {config.ActiveAssistant.models.chat_model === model.full_name && (
+                    <CheckIcon fontSize="small" sx={{ color: 'green' }} />
+                  )}
+                  {config.ActiveAssistant.models.chat_model !== model.full_name &&
+                    (downloadedModels[model.full_name] === true ? (
+                      <DeleteIcon
+                        data-testid="delete-other-model-icon"
+                        fontSize="small"
+                        onClick={event => {
+                          event.stopPropagation();
+                          handleRemoveClick(model.full_name);
+                        }}
+                        sx={{ color: 'red' }}
+                      />
+                    ) : (
+                      <DownloadIcon
+                        fontSize="small"
+                        onClick={event => {
+                          event.stopPropagation();
+                        }}
+                        sx={{ color: 'grey' }}
+                      />
+                    ))}
+                </MenuItem>
+              ))}
+          </Select>
+          <FormHelperText sx={{ fontSize: '11px' }}>
+          {config.ActiveAssistant.all_models === undefined
+            ? t('setting.models.current.no_other_model')
+            : !ready && !waitingForConsent
+              ? t('setting.models.current.loading') + config.ActiveAssistant.models.chat_model
+              : null}
+          </FormHelperText>
+        </FormControl>
+
+        <Typography sx={{ fontWeight: 'bold', fontSize: '14px', paddingBottom: '4px' }}>{t('setting.models.current.embedding')}</Typography>
+        <FormControl fullWidth size="small">
+          <Select
+            data-testid="embedding-model-select"
+            value={config.ActiveAssistant.models.embedding_model}
+            renderValue={value => value}
+            onChange={event => {
+              const modelName = event.target.value;
+              if (modelName === config.ActiveAssistant.models.embedding_model) {
+                return;
+              }
+              setPendingEmbeddingModel(modelName);
+              setShowEmbeddingConfirm(true);
+            }}
+            disabled={
+              config.ActiveAssistant.all_models === undefined
+                ? true
+                : newChatModelNeeded
+                  ? false
+                  : ready && isChatReady
+                    ? false
+                    : waitingForConsent
+                      ? false
+                      : true
+            }
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8,
+                  overflowY: 'auto',
+                },
+              },
+            }}
+            sx={{ width: '100%', fontSize: '14px' }}
+          >
+            {config.ActiveAssistant.all_models
+              .filter(model => model.model_type === 'embedding_model')
+              .map((model, index) => (
+                <MenuItem
+                  key={index}
+                  value={model.full_name}
+                  sx={{ justifyContent: 'space-between', fontSize: '14px' }}
+                >
+                  {model.full_name}
+                  {config.ActiveAssistant.models.embedding_model === model.full_name && (
+                    <CheckIcon sx={{ color: 'green' }} />
+                  )}
+                </MenuItem>
+              ))}
+          </Select>
+          <FormHelperText sx={{ fontSize: '11px' }}>
+          {config.ActiveAssistant.all_models === undefined
+            ? t('setting.models.current.no_other_model')
+            : !ready && !waitingForConsent
+              ? t('setting.models.current.loading') + config.ActiveAssistant.models.embedding_model
+              : null}
+          </FormHelperText>
+        </FormControl>
+
+        <Typography sx={{ fontWeight: 'bold', fontSize: '14px', paddingBottom: '4px' }}>{t('setting.models.current.ranker')}</Typography>
+        <FormControl fullWidth size="small">
+          <Select
+            data-testid="ranker-model-select"
+            value={config.ActiveAssistant.models.ranker_model}
+            renderValue={value => value}
+            onChange={event => {
+              const modelName = event.target.value;
+              handleModelSelection('ranker_model', modelName);
+            }}
+            disabled={
+              config.ActiveAssistant.all_models === undefined
+                ? true
+                : newChatModelNeeded
+                  ? false
+                  : ready && isChatReady
+                    ? false
+                    : waitingForConsent
+                      ? false
+                      : true
+            }
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8,
+                  overflowY: 'auto',
+                },
+              },
+            }}
+            sx={{ width: '100%', fontSize: '14px' }}
+          >
+            {config.ActiveAssistant.all_models
+              .filter(model => model.model_type === 'ranker_model')
+              .map((model, index) => (
+                <MenuItem
+                  key={index}
+                  value={model.full_name}
+                  sx={{ justifyContent: 'space-between', fontSize: '14px' }}
+                >
+                  {model.full_name}
+                  {config.ActiveAssistant.models.ranker_model === model.full_name && (
+                    <CheckIcon sx={{ color: 'green' }} />
+                  )}
+                </MenuItem>
+              ))}
+          </Select>
+          <FormHelperText sx={{ fontSize: '11px' }}>
+            {config.ActiveAssistant.all_models === undefined
+              ? t('setting.models.current.no_other_model')
+              : !ready && !waitingForConsent
+                ? t('setting.models.current.loading') + config.ActiveAssistant.models.ranker_model
+                : null}
+          </FormHelperText>
+        </FormControl>
+
+        <Typography sx={{ fontWeight: 'bold', fontSize: '14px', paddingBottom: '4px' }}>{t('setting.models.current.endpoint')}</Typography>
+        <FormControl fullWidth size="small">
+          <Select
+            data-testid="download-endpoint-select"
+            value={config.download_endpoint}
+            renderValue={value => value}
+            onChange={event => {
+              endPointSwitch(event.target.value);
+            }}
+            disabled={!canSwitchEndpoint()}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8,
+                  overflowY: 'auto',
+                },
+              },
+            }}
+            sx={{ width: '100%', fontSize: '14px' }}
+          >
+            {hfDownloadOptions.map((option, index) => (
+              <MenuItem
+                key={index}
+                value={option.label}
+                sx={{ justifyContent: 'space-between', fontSize: '14px' }}
+              >
+                {option.label}
+                {config.download_endpoint === option.label && <CheckIcon sx={{ color: 'green' }} />}
+              </MenuItem>
+            ))}
+          </Select>
+          <FormHelperText sx={{ fontSize: '11px', marginX: '0px' }}>
+            {t('setting.models.current.endpoint_tips2')}
+          </FormHelperText>
+        </FormControl>
+      </Box>
+
+      <SimpleAlert
+        isOpen={showEmbeddingConfirm}
+        title={t('setting.models.embedding_switch.title')}
+        content={t('setting.models.embedding_switch.content')}
+        confirmText={t('setting.models.embedding_switch.confirm')}
+        denyText={t('setting.models.embedding_switch.cancel')}
+        onConfirm={handleEmbeddingConfirm}
+        onDeny={handleEmbeddingCancel}
+        onClose={handleEmbeddingCancel}
+      />
+
+      <Dialog
+        open={removeModelDialog}
+        onClose={closeRemoveModelDialog}
+        data-testid="remove-model-dialog"
+      >
+        <DialogTitle>{t('setting.models.deletion.title')}</DialogTitle>
+        <DialogContent>
+          {t('setting.models.deletion.description')} {removeModelName}.
+          <br />
+          {t('setting.models.deletion.description_2')}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeRemoveModelDialog} data-testid="cancel-remove-model-button">
+            {t('setting.models.deletion.button.cancel')}
+          </Button>
+          <Button
+            data-testid="confirm-remove-model-button"
+            onClick={() => modelRemove()}
+            variant="contained"
+            color="error"
+          >
+            {t('setting.models.deletion.button.remove')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default ModelSelection;

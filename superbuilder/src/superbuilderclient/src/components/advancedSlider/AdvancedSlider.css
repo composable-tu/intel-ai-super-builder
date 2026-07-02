@@ -1,0 +1,28 @@
+.advanced-slider-container {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+  
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.slider-information {
+    display: flex;
+    flex-direction: row;
+}
+
+.slider-label {
+    font-size: small;
+    padding-left: 5px;
+}
+
+.slider-input {
+    width: 45px;
+    height: 20px;
+    border: 1px solid rgb(214, 214, 214);
+    margin-top: 20px;
+}

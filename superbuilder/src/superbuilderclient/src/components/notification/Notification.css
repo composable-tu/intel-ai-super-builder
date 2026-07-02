@@ -1,0 +1,29 @@
+.notification .flex-container {
+    display: flex;
+    height: 100%;
+  }
+
+
+
+  .notification .item1 { 
+    /* flex:1 1 auto; */
+    flex-grow:1;
+    width:50%;
+  }
+			
+  .notification .item2 { 
+    /* flex:1 1 auto; */
+    flex-grow:1;
+    width:50%;
+  }
+
+  .notification button{
+    width:100%;
+  }
+
+  .notification{
+    display: flex;
+    height: 100%;
+    width:100%;
+    border-radius: 8px;
+  }

@@ -1,0 +1,5 @@
+.status{}
+
+.status-loading {
+    cursor: progress;
+  }

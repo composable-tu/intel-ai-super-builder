@@ -1,1 +1,0 @@
-.venv\Scripts\activate & set PYTHONIOENCODING=utf-8 & python -m unittest discover -s .\tests -p "test*.py" -v

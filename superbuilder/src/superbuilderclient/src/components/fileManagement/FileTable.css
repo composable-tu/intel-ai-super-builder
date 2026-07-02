@@ -1,0 +1,59 @@
+/* FileTable.css */
+.file-text {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-text:hover + .file-text {
+    max-width: 800px;
+    white-space: wrap;
+    display: inline-block;
+    overflow: visible; 
+}
+
+.date-text {
+    max-width: 150px;
+    text-align: left;
+    white-space: wrap;
+  }
+
+.misc-text {
+    text-align: left;
+    white-space: wrap;
+}
+
+.status-text {
+  text-align: center;
+  white-space: wrap;
+}
+
+.status-container {
+  margin-left: 10px;
+}
+
+#file-name:hover {
+  font-weight: bolder;
+  text-decoration: underline;
+}
+
+.make-bold {
+  font-weight: bold;
+}
+
+.table-spinner {
+  width: 30px;
+  height: 30px;
+  align-self: center;
+}
+
+.table-loading-container {
+  display: flex;
+  align-self: center;
+  align-content: center;
+  justify-content: center;
+}
+
+
+  

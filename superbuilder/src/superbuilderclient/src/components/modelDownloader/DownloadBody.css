@@ -1,0 +1,118 @@
+.download-body {
+  padding: 20px 40px;
+  width: 85%;
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: break-word;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.download-status-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+} 
+
+.consent-container {
+  word-break: normal;
+}
+
+.consent-message {
+  font-size: 16px;
+  color: var(--text-primary-color);
+}
+
+.consent-confirm-text {
+  font-size: 14px;
+  color: var(--text-secondary-color);
+  margin-top: 20px;
+  margin-bottom: 5px;
+  line-height: 1;
+  text-align: left;
+}
+
+.consent-model {
+  color: var(--text-primary-color);
+}
+
+.consent-button-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.consent-button-options {
+  display: flex;
+  gap: 16px;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  width: 70%;
+}
+
+.consent-button-option {
+  width: 240px;
+  height: 32px;
+}
+
+.setup-fail-button {
+  border: 1px solid #c81326 !important;
+  color: #c81326 !important;
+}
+
+.setup-fail-button:hover {
+  background-color: #fee9e9 !important;
+}
+
+.model-name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.setup-complete-button-group {
+  margin-top: 24px !important;
+  padding: 10px 10px !important;
+  align-self: center !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.loading-spinner-20 {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  animation: spin 2s linear infinite;
+  display: inline-flex;
+}
+
+.consent-confirm-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: left;
+  margin-bottom: 15px;
+}
+
+.consent-confirm-text {
+  margin: 0;
+}
+
+.troubleshooting-link {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.download-status-text {
+  color: var(--text-primary-color);
+}

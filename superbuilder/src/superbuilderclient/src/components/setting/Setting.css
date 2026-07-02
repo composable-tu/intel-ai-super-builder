@@ -1,0 +1,393 @@
+.setting-panel {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 40px;
+  left: -350px;
+  height: calc(100% - 55px);
+  width: 350px;
+  background-color: var(--bg-color);
+  padding: 20px;
+  padding-top: 10px;
+  overflow: auto;
+  z-index: -1;
+  transition: left 0.3s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.setting-panel.open {
+  left: 57px;
+  box-shadow: 3px 0px 3px rgba(215, 215, 215, 0.34901960784313724);
+  position: fixed;
+  /* z-index: 10 !important; */
+}
+
+.setting-content {
+  padding: 0px;
+  padding-bottom: 20px;
+}
+.setting-content .container {
+  display: flex;
+  width: 100%;
+}
+
+.setting-content .column1 {
+  flex: 0 0 30%; /* 30% width, no grow, no shrink */
+}
+
+.setting-content {
+  flex: 1; /* Remaining space, grow to fill */
+}
+
+.logo-setting-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.logo-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  min-height: 50px;
+}
+
+.logo-action-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: center;
+  width: 50%;
+}
+
+.visual-label {
+  margin-bottom: 5px;
+}
+.assistant-configuration-switch-card .visual-divider {
+  margin: 16px 0;
+}
+
+#color-label {
+  margin-top: 20px;
+}
+
+.setting-content {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.hotkey-dropdown {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.setting-content .assistant-rename {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: var(--bg-color);
+}
+
+.inner-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.link:hover {
+  cursor: pointer;
+}
+
+.app-version-card {
+  width: 94%;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: white;
+}
+
+.app-version-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.model-switch-card,
+.assistant-configuration-switch-card {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin-top: 10px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: var(--bg-color);
+  flex-direction: column;
+  color: var(--text-primary-color);
+}
+
+.model-switch-card .MuiOutlinedInput-root {
+  background-color: var(--bg-color);
+  color: var(--text-primary-color);
+}
+
+/* Keep these existing MUI overrides */
+.model-switch-card .MuiFormControl-root {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.model-switch-card .MuiInputLabel-root {
+  padding: 0 4px;
+}
+
+.model-switch-card .MuiSelect-select {
+  padding: 12px;
+}
+
+.model-switch-card .MuiTypography-caption {
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+  display: block;
+}
+
+.model-switch-dropdown,
+.ui-configuration-switch-dropdown {
+  width: 100%;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.system-div {
+  display: flex;
+  align-items: flex-start;
+}
+
+.system-info-card {
+  width: 94%;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: white;
+}
+
+.system-type {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  width: 80px;
+}
+
+.system-value {
+  padding-left: 10px;
+  padding-top: 3px;
+  align-items: center;
+  line-height: 0%;
+}
+
+.system-icon {
+  font-size: 24px;
+}
+
+.CPU-1 {
+  margin-right: 10px;
+}
+
+.GPU-0 {
+  margin-right: 10px;
+}
+.dropdown-divider {
+  pointer-events: none;
+  padding: 0;
+  margin: 8px 0;
+  text-align: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.dropdown-divider-text {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding-top: 8px;
+  color: #888;
+  font-size: 0.875rem;
+}
+
+.ui-configuration-color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.ui-configuration-colo-palette:not([disabled]):hover {
+  cursor: pointer;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.button-group .MuiButton-root {
+  min-width: 120px;
+}
+
+.ui-configuration-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.color-picker-label {
+  width: 100%;
+  margin-bottom: -10px;
+  color: var(--text-primary-color);
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-model-button {
+  display: flex;
+  text-transform: none !important;
+  width: 100%;
+  height: 30px;
+  border-radius: 0px !important;
+  padding: 2px 2px 2px 2px;
+  margin-bottom: 4px !important;
+  margin-right: 10px !important;
+  border: 1px solid #d7d7d7;
+  border-radius: 0px;
+  box-sizing: border-box;
+  font-size: 16px;
+  color: #ffffff !important;
+  text-align: center;
+  line-height: normal;
+  align-items: center;
+  justify-content: center;
+}
+
+.model-loading-spinner {
+  margin-right: 10px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  aspect-ratio: 1/1;
+  animation: spin 2s linear infinite;
+}
+
+.setting-panel .small-form-control .MuiFormControlLabel-label {
+  font-size: 10px !important;
+}
+
+.setting-panel .small-form-control .MuiFormGroup-root {
+  padding-left: 4px !important;
+}
+
+.setting-panel .small-form-control .MuiFormLabel-root {
+  font-size: 10px !important;
+  padding-right: 6px;
+}
+
+.setting-panel .small-form-control .MuiRadio-root {
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+}
+
+.button-loading-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.info-container .model-upload-warning-label {
+  font-size: 10px;
+}
+
+.model-upload-error-label {
+  font-size: 10px;
+  color: red;
+}
+
+.label-with-tooltip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+.label-with-tooltip .MuiButton-root {
+  min-width: unset; /* Add this to remove default min-width */
+}
+
+.radio-group-with-label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+}
+.radio-label {
+  padding-right: 6px;
+}
+
+.model-upload-info {
+  line-height: 1.6;
+  max-width: 1080px;
+  max-height: 800px;
+}
+
+.model-upload-info ol {
+  padding-left: 20px;
+}
+
+.model-upload-info ul {
+  padding-left: 20px;
+}
+
+.model-upload-info li {
+  margin-bottom: 20px;
+}
+
+.model-upload-info pre {
+  background-color: rgba(127, 127, 127, 0.2);
+  padding: 5px;
+  border-radius: 5px;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 200px;
+  font-size: 10px;
+}
+
+.model-upload-info code {
+  color: var(--text-primary-color);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.inline-code {
+  background-color: rgba(127, 127, 127, 0.2);
+}
+
+.model-switch-card .MuiButton-root {
+  display: flex;
+  margin-bottom: 4px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.model-switch-card .MuiButton-startIcon {
+  margin: 0;
+}

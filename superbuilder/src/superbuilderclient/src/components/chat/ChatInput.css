@@ -1,0 +1,18 @@
+.chat-input-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: 10px;
+    padding-right: 10px;
+    border: 1px rgb(207, 207, 207) solid;
+    box-shadow: 1px 1px 1px rgb(221, 221, 221);
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.chat-input-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

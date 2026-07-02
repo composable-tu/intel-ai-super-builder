@@ -1,0 +1,483 @@
+{
+  "minimum_hardware": {
+    "title": "Minimum Hardware Specifications Not Met",
+    "part_1": "Your hardware is not compatible with this software.",
+    "part_2": "Please check the minimum hardware requirements:",
+    "part_3": "CPU: Intel® Core™ Ultra processor Series 1 (former Meteor Lake)",
+    "part_4": "Memory (RAM): 16GB",
+    "part_5": "Storage: 4GB for AI Super Builder with 1 LLM",
+    "part_6": "GPU: Integrated Intel® Graphics with driver version 32.0.101.8132 or later",
+    "part_7": "Network: Broadband connection for LLMs and other components’ download",
+    "model_download_status": "Model Downloading Status"
+  },
+  "non_validate_hardware": {
+    "title": "Warning: Your Hardware Has Not Been Validated",
+    "part_1": "Your system has not been validated by the SuperBuilder team.  ",
+    "part_2": "While you can proceed and use this software, please be aware that we cannot guarantee optimal performance."
+  },
+  "active_file_tooltip": {
+    "part_1": "Add only relevant files to your AI agent.",
+    "part_2": "They provide the right context, so answers are more accurate and on‑topic, with fewer irrelevant results.",
+    "part_3": "Tip: choose files that directly match your question."
+  },
+  "draganddrop": {
+    "button": {
+      "fiels": "Add Files",
+      "folders": "Add Folders",
+      "manage_kb": "Manage Knowledge Base",
+      "manage_mcp": "Manage MCP Server"
+    },
+    "title": "Knowledge Base",
+    "subtitle": "\n• Add files to the Knowledge Base to make your agent smarter. For specialized queries, attach them directly to the query.\n",
+    "area": "Drag and drop files here",
+    "file_manage": {
+      "back": "Back to your agent",
+      "add": "Add files to knowledge base",
+      "cancel": "Cancel",
+      "remove": "Remove from knowledge base",
+      "add_file_window_title": "Add Files for Intel AIA",
+      "add_folder_window_title": "Add Folder for Intel AIA",
+      "resp_display_file_error": "File processing is unavailable.\nPlease wait and try again.",
+      "resp_cancel_file_upload": "Cancelling adding files, please wait... \nNote: This will not remove already added files.",
+      "resp_upload_files": "Unable to add file(s). File type currently unsupported.",
+      "resp_upload_files_preparing": "Preparing...",
+      "resp_removing_selected_files": "Removing files...",
+      "resp_removed_selected_files": "Removed files...",
+      "resp_adding_file": "Adding file:\n",
+      "resp_upload_completed_1": "Unable to add file(s). \nTry smaller files or restart the app if the error persists.",
+      "resp_upload_completed_2": "Few file(s) could not be added. \nThey were either canceled, previously added, or in an unsupported format. \nFiles added:",
+      "resp_upload_completed_3": "File(s) could not be added. \nThey were either canceled, previously added, or in an unsupported format."
+    }
+  },
+  "mcp": {
+    "ui": {
+      "back": "Back to Super Agent",
+      "back-to-manager": "Back to MCP Manager",
+      "mcp_marketplace": "Add from MCP Marketplace",
+      "add": "Add MCP Server",
+      "edit": "Edit MCP Server",
+      "remove": "Remove MCP Server",
+      "cannot_remove_servers_tooltip": "Remove MCP servers. Ensure any MCP Agents using the server are removed first.",
+      "cannot_remove_agents_tooltip": "Remove MCP Agents. Stop the MCP Agent before removing.",
+      "mcp_server": "MCP Server",
+      "mcp_server_name": "MCP Server Name",
+      "mcp_server_url": "MCP Server URL",
+      "mcp_server_env": "Environment Variables (Optional)",
+      "mcp_server_env_placeholder": "e.g. {\"KEY1\":\"val1\",\"KEY2\":\"val2\"} or KEY1=val1 KEY2=val2",
+      "mcp_server_env_error": "Invalid format. Use JSON {\"KEY\":\"value\"}, KEY=VALUE, or KEY:VALUE (space-separated)",
+      "mcp_server_command": "MCP Server Command",
+      "mcp_server_command_args": "MCP Server Command Args (Optional)",
+      "mcp_server_info": "Info from MCP Server",
+      "mcp_server_info_empty": "No MCP Server info available. Please start it before view.",
+      "mcp_server_info_fetching": "Fetching MCP Server info...",
+      "url_radio": "URL",
+      "command_radio": "Command",
+      "add_button": "Add",
+      "save_button": "Save",
+      "close_button": "Close",
+      "disabled_checkbox": "Disabled",
+      "load_button": "Load MCP Servers",
+      "mcp_agent": "MCP Agent",
+      "add_agent": "Add new MCP Agent Info",
+      "edit_agent": "Edit MCP Agent Info",
+      "add_agent_button": "Add Agent",
+      "header_remove_agent_button": "Remove Agent",
+      "mcp_agent_name": "MCP Agent Name",
+      "mcp_agent_description": "Description",
+      "mcp_agent_system_prompt": "System Prompt",
+      "mcp_agent_mcp_server": "MCP Servers",
+      "mcp_agent_mcp_server_placeholder": "Select MCP Server(s)",
+      "mcp_agent_mcp_server_note": "Note: At least one MCP Server is required to start the agent",
+      "confirm_remove": "Confirm Remove",
+      "confirm_remove_message": "Please confirm to remove the selected",
+      "remove_button": "Remove",
+      "docker_recommendation_title": "Recommended:",
+      "docker_recommendation_description": "For better security and isolation, consider using the Command method with Docker (Requires Docker Desktop).",
+      "docker_recommendation_visit": "Visit",
+      "docker_servers_link": "Docker MCP Hub",
+      "docker_recommendation_suffix": "Note: Docker Desktop must be installed on your system.",
+      "guide_button": "[Important Usage Guide]",
+      "guide_tooltip": "Getting Started Guide for MCP Manager",
+      "guide_title": "Getting Started with MCP Manager",
+      "guide_step1_title": "Step 1 — Add MCP Server",
+      "guide_step1_desc": "Click the \"Add MCP Server\" button in the MCP Servers table. Fill in the server name and command. Make sure all required fields are correct before clicking \"Add.\"",
+      "guide_step2_title": "Step 2 — Add MCP Agent",
+      "guide_step2_desc": "Click the \"Add Agent\" button in the MCP Agents table. Give the agent a name and description, then select one or more MCP Servers from the list. At least one server must be selected to start the agent.",
+      "guide_step3_title": "Step 3 — Start MCP Agent",
+      "guide_step3_desc": "Find your agent in the MCP Agents table and click the \"Start\" button. The agent will connect to its configured MCP servers and become ready for use in the chat.",
+      "guide_note_prefix": "Before adding an MCP server, ensure uvx and npx are installed and available on your system environment PATH. These tools are required for most MCP servers to function correctly.",      
+      "guide_note_prefix2": "Important: For most MCP servers to work, please ensure that uvx and npx are installed and available in your system PATH.",
+      "guide_note_link": "[More Info]"
+    },
+    "tools_dialog": {
+      "title": "MCP Server Tools",
+      "confirm_title": "Review and Approve MCP Server Tools",
+      "confirm_title_multi": "Review Agent Tools",
+      "consent_alert_title": "MCP Agent Requires Tool Approval",
+      "consent_message": "MCP Agent \"{{agentName}}\" requires these tools to function. Please review and approve.",
+      "consent_message_multi": "This agent depends on the following MCP servers and tools to operate. Please review them carefully and ensure they are safe and come from a trusted source.",
+      "loading": "Fetching tools...",
+      "no_tools": "No tools available",
+      "no_description": "No description available",
+      "available_tools": "Available Tools",
+      "server_name": "MCP Server Name",
+      "command": "Command",
+      "url": "URL",
+      "environment": "Environment Variables",
+      "parameters": "Parameters",
+      "close": "Close",
+      "confirm": "Approve & Continue",
+      "reject": "Reject & Stop Agent",
+      "server_indicator": "MCP Server {{current}} of {{total}}"
+    },
+    "server_table": {
+      "command_title": "MCP Server with Command",
+      "url_title": "MCP Server with URL",
+      "name": "MCP Server Name",
+      "url": "URL",
+      "env": "Env",
+      "command": "Command",
+      "command_args": "Command Args",
+      "actions": "Actions",
+      "start": "Start",
+      "stop": "Stop",
+      "starting": "Starting",
+      "stopping": "Stopping",
+      "edit": "Edit"
+    },
+    "agent_table": {
+      "agent_name": "Agent Name",
+      "agent_description": "Description",
+      "system_prompt": "System Prompt",
+      "mcp_server": "MCP Server",
+      "actions": "Actions",
+      "remove": "Remove",
+      "no_mcpserver": "No MCP Server Selected"
+    },
+    "marketplace": {
+      "title": "MCP Marketplace",
+      "refresh": "Refresh Marketplace",
+      "loading": "Loading marketplace items...",
+      "add": "Add to MCP Manager",
+      "add_docker": "Add Docker Image",
+      "remove": "Remove",
+      "adding": "Adding...",
+      "removing": "Removing...",
+      "added": "Added",
+      "running": "Running",
+      "empty": "No marketplace items available",
+      "search": "Search",
+      "showing_results": "Showing results",
+      "no_results": "No results found",
+      "clear_search": "Clear search",
+      "close": "Close",
+      "by": "by",
+      "views": "views",
+      "no_description": "No description available"
+    }
+  },
+  "chat": {
+    "new_session": "<New Session>",
+    "edit_tips": "Edit",
+    "remove_tips": "Remove",
+    "placeholder": "Enter your question here",
+    "placeholder_generate_image": "Generate an image",
+    "processing": "Processing...",
+    "thinking": "Thinking",
+    "thought": "Thought",
+    "disclaimer_part_1": "Disclaimer: You are interacting with a Chatbot. ",
+    "disclaimer_part_2": " can make mistakes. Check important information.",
+    "imageinfo": "If image-related tasks are complete, please switch back to a text LLM for standard queries to get better response.",
+    "attach": {
+      "title": "Attach temporary files for special queries",
+      "summary": "Query Summary",
+      "summary_tips": "Attach up to 3 documents (PDF, DOCX, TXT) for summarization and querying.",
+      "data": "Query Tabular Data",
+      "data_tips": "Attach up to 1 tabular file (XLSX, CSV) formatted as a table, with the first row containing column headers and subsequent rows containing data.",
+      "images": "Query Images",
+      "images_tips": "Attach up to 3 images (PNG, JPEG, JPG) to extract details and perform queries. Requires a vision model such as Phi-3.5-vision.",
+      "generate_images": "Generate Images",
+      "resume": "Resume Match",
+      "resume_tips": "Attach resumes (PDF, DOCX, TXT) followed by a job description prompt for evaluation and further queries.",
+      "clear": "Clear",
+      "clear_tips": "Exit special queries and continue with the common knowledge base.",
+      "all_features": "Enable All Features",
+      "file_path_dialog_title_summarize": "Select file(s) for summarize query",
+      "file_path_dialog_title_table": "Select file(s) for table query",
+      "file_path_dialog_title_resume": "Select file(s) for resume query",
+      "file_path_dialog_title_image": "Select file(s) for image query"
+    },
+    "user": {
+      "notice": "If image-related tasks are complete, please switch back to a text LLM for standard queries to get better response.",
+      "welcome": "Welcome,",
+      "subwelcome": "How can I help you today?",
+      "current_model": "Current Model:",
+      "workflow_placeholder": "Ask anything - Your agent may make mistakes. Please check important info."
+    }
+  },
+  "topbar": {
+    "title": "About ",
+    "content_part_1": "This application has been optimized to use the AI PC capabilities of the hardware in this computer. Visit",
+    "content_part_2": "Intel.com/AIPC",
+    "content_part_3": "for the latest AI PC information and product availability.",
+    "content_part_4": "AI Super Builder Application Package:",
+    "content_part_4_1": "Visit the",
+    "content_part_5": "Intel® AI Super Builder Website",
+    "content_part_6": "Chat Model:",
+    "content_part_7": "Embedding Model:",
+    "content_part_8": "Reranker Model:",
+    "content_part_9": "OpenSource Component and License Information",
+    "content_part_10": "OK",
+    "content_part_gpu_driver": "Install latest GPU driver",
+    "content_part_npu_driver": "Install latest NPU driver",
+    "report_bug": "Report a Bug",
+    "user_guide": "User Guide",
+    "view_model_link": "View Model Card"
+  },
+  "sidebar": {
+    "chat_history": "Session History",
+    "new_chat": "New Session",
+    "report_bug": "Report a Bug",
+    "help": "Help Guide",
+    "setting": "App Settings",
+    "admin_mode": "Admin mode",
+    "mode_enable": "enabled",
+    "mode_disable": "disabled",
+    "mcp_manager": "MCP Manager"
+  },
+  "model_downloader": {
+    "head": {
+      "part_1": "One time setup",
+      "part_2": "Getting required files and loading model"
+    },
+    "body": {
+      "consent_message": "The models listed below are required. Please view the model card(s) for the respective terms and conditions and click \"Proceed\" to continue.",
+      "confirm_text": "I have reviewed the model card(s) and license(s). I agree to all terms and conditions and would like to download the third-party model(s)",
+      "button_proceed": "Proceed",
+      "button_cancel": "Cancel",
+      "status_downloading": "Downloading",
+      "model_folder": "Model folder:",
+      "status_complete": "Models' download complete - Let's go",
+      "status_failed": "Model(s) download failed.",
+      "troubleshooting_prefix": "For help, visit the 'Tips, Troubleshooting, Known Issues' section",
+      "troubleshooting_link": "here.",
+      "embedding_model": "Embedding Model",
+      "ranker_model": "Reranker Model",
+      "chat_model": "Chat Model"
+    }
+  },
+  "email": {
+    "title_1": "Email Helper",
+    "title_2": "Your email draft. Feel free to edit.",
+    "subject": "Subject:",
+    "message": "Message:",
+    "note": "Outlook must be set to Default Email Client when use Send to Outlook function.",
+    "limit_1": "The current version supports messages with a length of",
+    "limit_2": "characters or fewer. We are working to remove this limitation.",
+    "button": "Send to Outlook"
+  },
+  "setting": {
+    "fluid_modal": "Build your own model for SuperBuilder",
+    "appearance": {
+      "title": "Appearance",
+      "description": "Configure the name, look, and feel of your agent"
+    },
+    "name": "Name",
+    "visuals": {
+      "title": "Visuals",
+      "logo": "Logo",
+      "logo_update": "Upload New Logo",
+      "color": {
+        "title": "Color",
+        "pick": "Pick a color",
+        "primary": "Primary Color",
+        "primary_text": "Primary Text & Icons Color",
+        "secondary": "Secondary Color"
+      },
+      "language": {
+        "title": "Language",
+        "subtitle": "Select UI Language"
+      },
+      "button": {
+        "reset": "Reset",
+        "apply": "Apply"
+      }
+    },
+    "versionandupdate": {
+      "title": "Version and Update",
+      "description": "Update to get the latest features",
+      "subtitle": "Current version:",
+      "button": "Check for Update"
+    },
+    "models": {
+      "title": "Models",
+      "description": "View and change the active AI models",
+      "recommended": "Recommended Models",
+      "other": "Other Models",
+      "current": {
+        "currentllm": "Current LLM",
+        "currentllm_tips": "Model download may be triggered upon change",
+        "embedding": "Current Embedding Model",
+        "embedding_tips": "*Model download might be triggered upon change",
+        "ranker": "Current Reranker Model",
+        "ranker_tips": "*Model download might be triggered upon change",
+        "endpoint": "Model Download Endpoint",
+        "endpoint_tips1": "Trouble downloading? Try a different endpoint.",
+        "endpoint_tips2": "Mainland China users, select ModelScope endpoint.",
+        "no_other_model": "No other models available",
+        "loading": "Loading ",
+        "all_models": "All Models"
+      },
+      "upload": {
+        "title": "Upload your models",
+        "type": "Model Type: ",
+        "type_chat": "Chat",
+        "type_embedding": "Embedder",
+        "type_ranker": "Reranker",
+        "method": "Upload Method: ",
+        "method_copy": "Copy folder",
+        "method_move": "Move folder",
+        "upload_button": "Upload Model",
+        "upload_button_tips": "User is responsible for ensuring the accuracy of the model",
+        "conversion": "Model Conversion",
+        "select_a_folder": "Select a Folder",
+        "tips": "Click here to learn how to upload your own model"
+      },
+      "conversion": {
+        "title": "OpenVINO Model Conversion",
+        "form_1": "Hugging Face Model ID or Local Path (Text models only)",
+        "form_2": "Hugging Face Token ID (Optional)",
+        "form_3": "OpenVINO Command flags (Optional)",
+        "tips_3_1": "Click here for examples of OpenVINO flags",
+        "model_type": "Model Type:",
+        "chat": "Chat",
+        "embedder": "Embedder",
+        "reranker": "Reranker",
+        "agreement": "I have reviewed and agree to all licenses, terms and conditions.",
+        "convert_button": "Convert Model",
+        "notice_1": "You can activate the model anytime. Go to:",
+        "notice_2": "Settings > Models > Select Model",
+        "notice_3": "and choose the desired model from the dropdown list.",
+        "close_button": "Close",
+        "active_button": "Activate Model & Close Window"
+      },
+      "deletion": {
+        "title": "Model Removal Confirmation",
+        "description": "You are about to remove",
+        "description_2": "This action cannot be undone.",
+        "button": {
+          "remove": "Remove",
+          "cancel": "Cancel"
+        }
+      },
+      "embedding_switch": {
+        "title": "Confirm Embedding Model Switch",
+        "content": "Switching the embedding model will delete the existing knowledge base data (vector database). All previously embedded documents will need to be re-added. Do you want to continue?",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      }
+    },
+    "parameters": {
+      "title": "Parameters",
+      "description": "Modify how the agent behaves (advanced users only)",
+      "reset_button": "Reset to Defaults",
+      "llm": {
+        "title": "LLM",
+        "description": ""
+      },
+      "high_value": "Higher value:",
+      "low_value": "Lower value:"
+    },
+    "systeminfo": {
+      "title": "System Info",
+      "description": "View system hardware information"
+    },
+    "confimportexport": {
+      "title": "Export/Import Configuration",
+      "description": "Export or import the current configuration",
+      "button": {
+        "import": "Import",
+        "export": "Export"
+      },
+      "info": {
+        "suc": "Config Exported Successfully!",
+        "location": "Export Location:",
+        "filename": "Export FileName:",
+        "ok": "OK"
+      }
+    },
+    "alert": {
+      "title": "is not supported",
+      "part_1": "Your hardware is not compatible with this model which highly optimized for NPU.",
+      "part_2": "Please check the minimum hardware requirements:",
+      "part_3": "CPU: Intel® Core™ Ultra processor Series 2 (former Lunar Lake)",
+      "part_4": "NPU Driver: We recommend installing the latest NPU driver version from: ",
+      "part_4_url": "https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html"
+    },
+    "notice": {
+      "steps": {
+        "title": "Here are the steps that we follow to prepare the models:",
+        "step1": "First, you need to install the HuggingFace's Optimum package with the OpenVINO support:",
+        "step2": "The current framework requires transformers version 4.53.0:",
+        "step3": "Then, use the following command to download and quantize the model using an int4 symmetric format:",
+        "step3_note": "where <1><MODEL_ID></1> corresponds to the HuggingFace's model id and <1><OUTPUT></1> is the path where the generated OV model will be stored.",
+        "step4": "For LLMs, we can use <1>--task text-generation-with-past</1>, and will need <1>group_size</1>, <1>sym</1> and <1>ratio</1> etc parameters 😊",
+        "step5": "For the case of the embedder and reranker models the procedure is very similar to the LLM with the difference that in these cases we need to specify the task type. In this case we are applying a quantization of int8.",
+        "step5_embedder": "For the embedder:",
+        "step5_reranker": "For the reranker:",
+        "step6": "Upload your model using the \"Upload Model\" button in the settings panel. When preparing the model zip file for upload, ensure that the folder directly contains the files without any subfolders, as shown in the following example."
+      }
+    }
+  },
+  "status": {
+    "could_not_load_model": "Could not load model, please try again with a different model",
+    "checking_api_service": "Checking API service",
+    "hardware_not_met": "The following minimum hardware requirement are not met: Intel Core Ultra Series 1, 16GB RAM, 4GB storage, Integrated Intel Graphics, and an Internet connection",
+    "failed_to_connect_service": "Failed to connect to API Service. Please try restart app.",
+    "checking_local_llm": "Checking local LLM models",
+    "awaiting_download_models": "Awaiting consent to download models",
+    "downloading_models": "Downloading LLM models.",
+    "downloading_retry": "Failed to download llm models. Retrying...",
+    "downloading_retry_1": "Failed to download llm models. Retrying",
+    "downloading_retry_2": "times...",
+    "failed_to_download_models": "Failed to download models. Please check and restart app.",
+    "checking_backend": "Checking backend...",
+    "backend_not_ready": "Backend is not ready. Please check and restart app.",
+    "loading_models": "Loading models...",
+    "updating_model": "Updating session LLM model: ",
+    "ready": "Ready",
+    "could_not_load_model_2": "Could not load model"
+  },
+  "notification": {
+    "close_button": "Close",
+    "portal_button": "Go to Web Portal",
+    "header": "Check for Update",
+    "fetch_update": "Fetching the update...",
+    "failed_to_fetch_update": "Fail to fetch update.",
+    "title": "Intel(R) AI Super Builder",
+    "update_available": "An update is available",
+    "update_to_date": "Your application is up to date",
+    "install_version": "Installed Version:",
+    "update_version": "Updated Version:"
+  },
+  "feedback": {
+    "placeholder_1": "Kindly elaborate the answer",
+    "placeholder_2": "Kindly provide the correct answer",
+    "copy_to_email": "Copied to Email Draft Window!",
+    "feedback_received": "Feedback received!"
+  },
+  "fluidmodel": {
+    "close_button": "Close"
+  },
+  "model_incompatible": {
+    "header_model_updates_required": "Model Updates Required",
+    "incompatible_models_message": "The following models are incompatible with this version and must be removed and redownloaded:",
+    "preparing_remove_models": "Preparing to remove models...",
+    "removing_model": "Removing {{modelName}} ({{current}}/{{total}})...",
+    "remove_models_success": "All models removed successfully. Restarting application...",
+    "remove_models_failed": "Failed to remove some models: {{failedModels}}",
+    "remove_models_failed_generic": "Failed to remove models.",
+    "remove_models_error": "Error: {{error}}",
+    "button_remove_models": "Remove Models"
+  }
+}

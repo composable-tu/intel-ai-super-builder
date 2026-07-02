@@ -1,0 +1,72 @@
+.textfield-title {
+    font-weight: 500;
+    color: var(--text-primary-color);
+    text-align: left;
+    display: flex;
+    line-height: normal;
+    font-size: 16px;
+}
+
+.textfield-label-container {
+    align-items: flex-start;
+    width: 100%;
+    padding-top: 10px;
+}
+
+.label-tooltip-container {
+    flex-direction: row;
+    display: flex;
+    height: 40px;
+    align-items: center;
+}
+
+.radio-group-with-label {
+    display: flex;
+    align-items: center;
+}
+
+.infoshape {
+    margin-left: 6px;
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.convert-model-box .small-form-control .MuiFormControlLabel-label {
+    font-size: 16px !important;
+}
+
+.convert-model-box .small-form-control .MuiFormGroup-root {
+    padding-left: 4px !important;
+}
+
+.convert-model-box .small-form-control .MuiFormLabel-root {
+    font-size: 10px !important;
+    padding-right: 6px;
+}
+
+.convert-model-box .small-form-control .MuiRadio-root {
+    padding-left: 15px !important;
+    padding-right: 3px !important;
+}
+
+.window-control {
+    color: var(--header-text-color) !important;
+    border-radius: 0 !important;
+    min-width: 40px !important;
+    padding: 10px !important;
+}
+
+.window-control:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+#close:hover {
+    background-color: #ff0000 !important;
+}
+
+#close:active {
+    background-color: #aa0000 !important;
+}
