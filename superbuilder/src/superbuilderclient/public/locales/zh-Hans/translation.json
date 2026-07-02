@@ -16,7 +16,7 @@
     "part_2": "尽管您可以继续使用本软件，但请注意，我们无法保证本软件能够达到最佳性能。"
   },
   "active_file_tooltip": {
-    "part_1": "仅向 AI 助手添加相关文件。",
+    "part_1": "仅向 AI 智能体添加相关文件。",
     "part_2": "它们提供正确的上下文，使答案更准确、更切题，减少无关结果。",
     "part_3": "提示：选择与您的问题直接相关的文件。"
   },
@@ -28,10 +28,10 @@
       "manage_mcp": "管理 MCP 服务器"
     },
     "title": "知识库",
-    "subtitle": "• 向知识库添加文件可增强助手能力。针对特定查询，请直接在查询中附加文件。",
+    "subtitle": "• 向知识库添加文件可增强智能体能力。针对特定查询，请直接在查询中附加文件。",
     "area": "拖拽文件到此处",
     "file_manage": {
-      "back": "返回问答界面",
+      "back": "返回智能体",
       "add": "添加文件到知识库",
       "cancel": "取消",
       "remove": "从知识库移除",
@@ -75,17 +75,17 @@
       "close_button": "关闭",
       "disabled_checkbox": "禁用",
       "load_button": "载入 MCP 服务器",
-      "mcp_agent": "MCP 助理",
-      "add_agent": "添加 MCP 助理信息",
-      "edit_agent": "编辑 MCP 助理信息",
-      "add_agent_button": "添加助理",
-      "header_remove_agent_button": "移除助理",
-      "mcp_agent_name": "MCP 助理名称",
+      "mcp_agent": "MCP 智能体",
+      "add_agent": "添加 MCP 智能体信息",
+      "edit_agent": "编辑 MCP 智能体信息",
+      "add_agent_button": "添加智能体",
+      "header_remove_agent_button": "移除智能体",
+      "mcp_agent_name": "MCP 智能体名称",
       "mcp_agent_description": "描述",
       "mcp_agent_system_prompt": "系统提示词",
       "mcp_agent_mcp_server": "MCP 服务器",
       "mcp_agent_mcp_server_placeholder": "选择 MCP 服务器",
-      "mcp_agent_mcp_server_note": "注意：至少需要添加一个 MCP 服务器才能启动助理",
+      "mcp_agent_mcp_server_note": "注意：至少需要添加一个 MCP 服务器才能启动智能体",
       "confirm_remove": "确认移除",
       "confirm_remove_message": "请确认是否移除选定的",
       "remove_button": "移除",
@@ -99,23 +99,23 @@
       "guide_title": "MCP 管理入门",
       "guide_step1_title": "第一步 — 添加 MCP 服务器",
       "guide_step1_desc": "点击 MCP 服务器表格中的「添加 MCP 服务器」按钮，填写服务器名称和指令，确认参数无误后点击「添加」完成操作。",
-      "guide_step2_title": "第二步 — 添加 MCP 助理",
-      "guide_step2_desc": "点击 MCP 助理表格中的「添加助理」按钮，填写助理名称和描述，然后从列表中勾选一个或多个 MCP 服务器。至少需要选择一个服务器才能启动助理。",
-      "guide_step3_title": "第三步 — 启动 MCP 助理",
-      "guide_step3_desc": "在 MCP 助理表格中找到刚添加的助理，点击「启动」按钮。助理将连接到所配置的 MCP 服务器，启动后即可在对话中使用。",
+      "guide_step2_title": "第二步 — 添加 MCP 智能体",
+      "guide_step2_desc": "点击 MCP 智能体表格中的「添加智能体」按钮，填写智能体名称和描述，然后从列表中勾选一个或多个 MCP 服务器。至少需要选择一个服务器才能启动智能体。",
+      "guide_step3_title": "第三步 — 启动 MCP 智能体",
+      "guide_step3_desc": "在 MCP 智能体表格中找到刚添加的智能体，点击「启动」按钮。智能体将连接到所配置的 MCP 服务器，启动后即可在对话中使用。",
       "guide_note_prefix": "在添加 MCP 服务器前，请确保已在系统环境 PATH 中安装并可使用 uvx 和 npx。这些工具是大多数 MCP 服务器正常运行所必需的。",
       "guide_note_prefix2": "注意：大多数 MCP 服务器需要已安装 uvx 和 npx，并且可在系统环境 PATH 中使用。",
       "guide_note_link": "【更多信息】",
-      "cannot_remove_servers_tooltip": "移除 MCP 服务器。请确保先移除使用该服务器的所有 MCP 助理。",
-      "cannot_remove_agents_tooltip": "移除 MCP 助理。在移除前请先停止 MCP 助理。"
+      "cannot_remove_servers_tooltip": "移除 MCP 服务器。请确保先移除使用该服务器的所有 MCP 智能体。",
+      "cannot_remove_agents_tooltip": "移除 MCP 智能体。在移除前请先停止 MCP 智能体。"
     },
     "tools_dialog": {
       "title": "MCP 服务器工具",
       "confirm_title": "审查并批准 MCP 服务器工具",
-      "confirm_title_multi": "审查助理工具",
-      "consent_alert_title": "MCP 助理需要工具批准",
-      "consent_message": "MCP 助理 \"{{agentName}}\" 需要这些工具才能运行。请审查并批准。",
-      "consent_message_multi": "此助理依赖以下 MCP 服务器和工具来运行。请仔细审查它们，确保它们安全且来自可信来源。",
+      "confirm_title_multi": "审查智能体工具",
+      "consent_alert_title": "MCP 智能体需要工具批准",
+      "consent_message": "MCP 智能体 \"{{agentName}}\" 需要这些工具才能运行。请审查并批准。",
+      "consent_message_multi": "此智能体依赖以下 MCP 服务器和工具来运行。请仔细审查它们，确保它们安全且来自可信来源。",
       "loading": "正在获取工具...",
       "no_tools": "没有可用工具",
       "no_description": "没有可用描述",
@@ -127,7 +127,7 @@
       "parameters": "参数",
       "close": "关闭",
       "confirm": "批准并继续",
-      "reject": "拒绝并停止助理",
+      "reject": "拒绝并停止智能体",
       "server_indicator": "MCP 服务器 {{current}} / {{total}}"
     },
     "server_table": {
@@ -146,7 +146,7 @@
       "edit": "编辑"
     },
     "agent_table": {
-      "agent_name": "助理名称",
+      "agent_name": "智能体名称",
       "agent_description": "描述",
       "system_prompt": "系统提示词",
       "mcp_server": "MCP 服务器",
@@ -212,7 +212,7 @@
       "welcome": "欢迎，",
       "subwelcome": "今天需要什么帮助？",
       "current_model": "当前模型：",
-      "workflow_placeholder": "随便提问 - 您的助理可能会出错。请核实重要信息。"
+      "workflow_placeholder": "随便提问 - 您的智能体可能会出错。请核实重要信息。"
     }
   },
   "topbar": {
@@ -280,7 +280,7 @@
     "fluid_modal": "为 SuperBuilder 构建自定义模型",
     "appearance": {
       "title": "外观",
-      "description": "配置助手名称、视觉样式与交互体验"
+      "description": "配置智能体名称、视觉样式与交互体验"
     },
     "name": "名称",
     "visuals": {
@@ -379,7 +379,7 @@
     },
     "parameters": {
       "title": "高级参数",
-      "description": "调整助手行为（建议高级用户操作）",
+      "description": "调整智能体行为（建议高级用户操作）",
       "reset_button": "恢复默认设置",
       "llm": {
         "title": "LLM 参数",
